@@ -1,0 +1,9 @@
+Rules:
+
+- It is possible to change the values of the simulation, such as grid dimension, number of animals etc. through the Constants.py file.
+- Press the space bar to generate the next state of the simulation. This will be stored in a list to be checked out later.
+  If you want to check out the previous states, you can switch to navigation mode pressing "n" and go through them using
+  the arrows: left for previous and right for next. BE CAREFUL, you can only switch back to initialization mode by
+  pressing "i" if you are in the lastly created state. That is to prevent you from changing any of the states that had
+  already been created.
+-
