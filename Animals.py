@@ -1,4 +1,5 @@
 from Constants import *
+from Groups import *
 
 
 class Animal:
@@ -28,6 +29,9 @@ class Animal:
     def leave_group(self):
         pass
 
+    def join_group(self, group):
+        pass
+
     def expend_energy(self, amount):
         self.energy -= amount
         if self.energy <= 0:
@@ -43,10 +47,18 @@ class Carviz(Animal):
         Carviz.id_counter += 1
         self.pride = None
 
+    def join_group(self, group):
+        if isinstance(group, Pride):
+            self.join_pride(group)
+
     def join_pride(self, pride):
         if self.pride:
             self.pride.remove(self)
-        self.pride = pride
+        if pride.add_member(self):
+            self.pride = pride
+        else:
+            new_pride = Pride([self])
+            new_pride.threshold = self.social_attitude
 
     def leave_pride(self):
         if self.pride:
@@ -68,10 +80,18 @@ class Erbast(Animal):
         self.lastVisitedCell = None
         Erbast.id_counter += 1
 
+    def join_group(self, group):
+        if isinstance(group, Herd):
+            self.join_herd(group)
+
     def join_herd(self, herd):
         if self.herd:
             self.herd.remove(self)
-        self.herd = herd
+        if herd.add_member(self):
+            self.herd = herd
+        else:
+            new_herd = Herd([self])
+            new_herd.threshold = self.social_attitude
 
     def graze(self, vegetob_available):
         # The Erbast eats the biggest amount of Vegetob to reach maximum energy (100)

@@ -104,7 +104,9 @@ class GridVisualizer:
                 else:
                     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
                           ""
+                          ""
                           "Move to the lastly stored state to move to initialization mode"
+                          ""
                           ""
                           "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
