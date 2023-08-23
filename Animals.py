@@ -73,7 +73,7 @@ class Erbast(Animal):
             self.herd.remove(self)
         self.herd = herd
 
-    def grazee(self, vegetob_available):
+    def graze(self, vegetob_available):
         # The Erbast eats the biggest amount of Vegetob to reach maximum energy (100)
         amount_needed = max(0, 100 - self.energy)
         # limit the consumption to the available vegetob
