@@ -13,9 +13,10 @@ class AnimalGroup:
         self.members = []
         self.max_size = MAX_SIZE
         self.threshold = threshold
+        self.cell = None
 
     def add_member(self, animal):
-        if len(self.members) < self.max_size:
+        if len(self.members) < self.max_size and animal not in self.members:
             if self.threshold < animal.social_attitude:
                 self.members.append(animal)
                 return True
@@ -35,10 +36,18 @@ class AnimalGroup:
     def setThreshold(self, value):
         self.threshold = value
 
+    def age_group(self):
+        for member in self.members:
+            member.ageing()
+
 
 class Herd(AnimalGroup):
+    id_counter = 0
+
     def __init__(self, max_size=MAX_SIZE, threshold=generate_threshold()):
         super().__init__(max_size, threshold)
+        self.id = Herd.id_counter
+        Herd.id_counter += 1
 
     def graze(self):
         for erbast in self.members:
@@ -48,6 +57,11 @@ class Herd(AnimalGroup):
 
 
 class Pride(AnimalGroup):
+    id_counter = MAX_HERDS
+
     def __init__(self, max_size=MAX_SIZE):
         super().__init__(max_size)
+        self.id = Pride.id_counter
+        Pride.id_counter += 1
 
+    

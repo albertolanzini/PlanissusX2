@@ -12,6 +12,7 @@ class Animal:
         self.dead = False
 
     def ageing(self):
+        print(f"Aging animal with id {self.id}")
         self.age += 1
         if self.age > self.lifetime:
             self.die()
@@ -48,22 +49,31 @@ class Carviz(Animal):
         self.pride = None
 
     def join_group(self, group):
+        self.leave_group()
         if isinstance(group, Pride):
             self.join_pride(group)
 
     def join_pride(self, pride):
-        if self.pride:
-            self.pride.remove(self)
-        if pride.add_member(self):
-            self.pride = pride
+        if self.pride is not None:
+            self.pride.remove_member(self)
+        if not pride.add_member(self):
+            new_pride = Pride()
+            new_pride.setThreshold(0)
+            new_pride.add_member(self)
+            self.pride = new_pride
+            new_pride.cell = self.cell
+            new_pride.cell.prides.append(pride)
         else:
-            new_pride = Pride([self])
-            new_pride.threshold = self.social_attitude
+            self.pride = pride
+
 
     def leave_pride(self):
+        """Make sure to add the animal to another Pride after leaving the group. It could create varying issues to let
+        the animals stay without a group."""
         if self.pride:
-            self.pride.remove(self)
+            self.pride.remove_member(self)
         self.pride = None
+        
 
     def leave_group(self):
         self.leave_pride()
@@ -81,17 +91,24 @@ class Erbast(Animal):
         Erbast.id_counter += 1
 
     def join_group(self, group):
+        self.leave_group()
         if isinstance(group, Herd):
             self.join_herd(group)
 
     def join_herd(self, herd):
-        if self.herd:
-            self.herd.remove(self)
-        if herd.add_member(self):
-            self.herd = herd
+        if self.herd is not None:
+            self.herd.remove_member(self)
+        if not herd.add_member(self):
+            self.leave_herd()
+            new_herd = Herd()
+            new_herd.setThreshold(0)
+            new_herd.add_member(self)
+            self.herd = new_herd
+            new_herd.cell = self.cell
+            new_herd.cell.herds.append(new_herd)
         else:
-            new_herd = Herd([self])
-            new_herd.threshold = self.social_attitude
+            self.herd = herd
+
 
     def graze(self, vegetob_available):
         # The Erbast eats the biggest amount of Vegetob to reach maximum energy (100)
@@ -102,9 +119,12 @@ class Erbast(Animal):
         self.energy += energy_gain
 
     def leave_herd(self):
+        """Make sure to add the animal to another Pride after leaving the group. It could create varying issues to let
+        the animals stay without a group."""
         if self.herd:
-            self.herd.remove(self)
+            self.herd.remove_member(self)
         self.herd = None
+        
 
     def leave_group(self):
         self.leave_herd()

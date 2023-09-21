@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Constants import *
 from Animals import *
+from main import daily_actions
+from dailyOperations import *
 
 
 class GridVisualizer:
@@ -10,7 +12,7 @@ class GridVisualizer:
         self.fig, self.axs = plt.subplots(2, 1, figsize=(10, 20))
         self.vegetob_density_grid = np.zeros((len(grid), len(grid[0])))
         self.animal_presence_grid = np.zeros((len(grid), len(grid[0])))
-        self.day_count = 0
+        self.day_count = 1
         self.grid_states = [{'grid': grid.copy(), 'day_count': self.day_count}]
         self.current_state_index = 0
         self.mode = 'initialization'
@@ -23,7 +25,7 @@ class GridVisualizer:
 
     def setup_visuals(self):
         self.im_vegetob_density = self.axs[0].imshow(self.vegetob_density_grid, cmap='Greens', vmin=0, vmax=100)
-        self.im_animal_presence = self.axs[1].imshow(self.animal_presence_grid, cmap='bwr', vmin=0, vmax=5)
+        self.im_animal_presence = self.axs[1].imshow(self.animal_presence_grid, cmap='bwr', vmin=0, vmax=2)
 
         self.axs[0].set_title('Vegetob Density')
         self.axs[1].set_title('Animal Presence')
@@ -68,15 +70,14 @@ class GridVisualizer:
         if self.mode == 'initialization':
             if event.key == ' ':
                 self.update_and_visualize()
-                if self.day_count < NUM_DAYS:
+                if self.day_count <= NUM_DAYS:
                     print("-------------------------"
                           ""
                           "GIORNO NUMERO - ", self.day_count,
                           ""
                           "-------------------------")
-                    # print_prides_and_herds()  # Called directly without self.
-                    # age_all_animals_grow_vegetob()  # Called directly without self.
-                    # print_prides_and_herds()  # Called directly without self.
+                    daily_actions(self.grid)
+                    print_prides_and_herds(self.grid)
                     self.day_count += 1
 
                     self.grid_states.append({'grid': self.grid.copy(), 'day_count': self.day_count})
@@ -137,10 +138,10 @@ class GridVisualizer:
                 for animal in cell.inhabitants:
                     if isinstance(animal, Erbast) and not animal.dead:
                         erbast_count += 1
-                        print(f"Erbast {erbast_count}, id: {animal.id} age: {animal.age}, lifetime: {animal.lifetime}")
+                        print(f"Erbast {erbast_count}, age: {animal.age}, lifetime: {animal.lifetime}, herd: {animal.herd.id}")
                     elif isinstance(animal, Carviz) and not animal.dead:
                         carviz_count += 1
-                        print(f"Carviz {carviz_count} age: {animal.age}, lifetime: {animal.lifetime}")
+                        print(f"Carviz {carviz_count} age: {animal.age}, lifetime: {animal.lifetime}, pride: {animal.pride.id}")
                         # print(f"Carviz {carviz_count} age: {animal.age}, lifetime: {animal.lifetime}, pride: {animal.pride.id}")
 
 
