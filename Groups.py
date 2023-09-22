@@ -37,8 +37,14 @@ class AnimalGroup:
         self.threshold = value
 
     def age_group(self):
-        for member in self.members:
-            member.ageing()
+        i = 0
+        while i < len(self.members):
+            animal = self.members[i]
+            animal.ageing()
+            if animal.dead:
+                self.remove_member(animal)
+            else:
+                i += 1
 
 
 class Herd(AnimalGroup):
