@@ -65,6 +65,7 @@ class Carviz(Animal):
             new_pride.cell.prides.append(pride)
         else:
             self.pride = pride
+            self.pride.cell = self.cell
 
 
     def leave_pride(self):
@@ -98,6 +99,7 @@ class Erbast(Animal):
     def join_herd(self, herd):
         if self.herd is not None:
             self.herd.remove_member(self)
+        herd.cell = self.cell
         if not herd.add_member(self):
             self.leave_herd()
             new_herd = Herd()
@@ -108,6 +110,9 @@ class Erbast(Animal):
             new_herd.cell.herds.append(new_herd)
         else:
             self.herd = herd
+            herd.cell = self.cell
+            if herd not in herd.cell.herds:
+                herd.cell.herds.append(herd)
 
 
     def graze(self, vegetob_available):
@@ -124,6 +129,7 @@ class Erbast(Animal):
         if self.herd:
             self.herd.remove_member(self)
         self.herd = None
+        
         
 
     def leave_group(self):

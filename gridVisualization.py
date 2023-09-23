@@ -76,7 +76,14 @@ class GridVisualizer:
                           "GIORNO NUMERO - ", self.day_count,
                           ""
                           "-------------------------")
+                    print_prides_and_herds(self.grid)
+                    print("""
+                    ------------------------------
+                    """)
                     daily_actions(self.grid)
+                    print("""
+                    ------------------------------
+                    """)
                     print_prides_and_herds(self.grid)
                     self.day_count += 1
 

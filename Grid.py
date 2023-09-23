@@ -5,13 +5,14 @@ from Animals import Erbast, Carviz
 
 
 class Cells:
-    def __init__(self, type, vegetob=None):
+    def __init__(self, type, vegetob=None, grid=None):
         self.type = type
         self.vegetob = vegetob
         self.inhabitants = set()
         self.position = None
         self.herds = []
         self.prides = []
+        self.grid = grid
 
     def __repr__(self):
         if self.vegetob is not None:
@@ -38,7 +39,7 @@ def create_grid(numcellsx, numcellsy):
                     grid[i][j].position = (i, j)
                 else:
                     vegetob_density = random.randint(20, 80)
-                    grid[i][j] = Cells('ground', Vegetob(vegetob_density))
+                    grid[i][j] = Cells('ground', Vegetob(vegetob_density), grid=grid)
                     grid[i][j].position = (i, j)
 
     return grid

@@ -11,14 +11,27 @@ def daily_actions(grid):
         for cell in row:
             
             if cell.type == 'ground':
+
+                # 1 step - Vegetob growth
                 cell.vegetob.growing()
 
-                for herd in cell.herds:
+                # 2 step - Aging
+                for herd in list(cell.herds):
                     herd.age_group()
+                    herd.moved = False
 
-                for pride in cell.prides:
+                for pride in list(cell.prides):
                     pride.age_group()
+                    pride.moved = False
+    
+    for row in grid:
+        for cell in row:
 
+            if cell.type == 'ground':
+
+                for herd in list(cell.herds):
+                    herd.move()
+                    herd.moved = True
 
 def main():
     grid1 = create_grid(numCellsX, numCellsY)
