@@ -18,7 +18,6 @@ def groupAnimalsStart(grid):
                 herd = Herd()
                 for erbast in erbast_in_cell:
                     erbast.join_group(herd)
-                cell.herds.append(herd)
 
             if carviz_in_cell:
                 pride = Pride()

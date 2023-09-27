@@ -21,6 +21,11 @@ class Cells:
             vegetob_density = 0
         return f"Cell(type={self.type}, vegetob_density={vegetob_density}, inhabitants={len(self.inhabitants)}, position={self.position})"
 
+    def count_carviz(self):
+        return sum(1 for animal in self.inhabitants if isinstance(animal, Carviz))
+        
+    def get_vegetob_amount(self):
+        return self.vegetob.get_density() if self.vegetob else 0
 
 def create_grid(numcellsx, numcellsy):
     # Initialize an empty numpy array with the specified dimensions

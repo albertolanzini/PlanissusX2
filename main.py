@@ -7,6 +7,13 @@ from dailyOperations import *
 
 
 def daily_actions(grid):
+    """
+    This function performs the daily actions for each cell in the grid.
+    It iterates over each cell in the grid and performs the following actions:
+    - If the cell type is 'ground', it triggers the growth of Vegetob in the cell.
+    - It ages all the herds and prides in the cell.
+    - It then triggers the movement of herds in the cell.
+    """
     for row in grid:
         for cell in row:
             
@@ -36,8 +43,8 @@ def daily_actions(grid):
 def main():
     grid1 = create_grid(numCellsX, numCellsY)
 
-    populate_grid(Erbast, 10, grid1)
-    populate_grid(Carviz, 10, grid1)
+    populate_grid(Erbast, 100, grid1)
+    populate_grid(Carviz, 20, grid1)
     
     groupAnimalsStart(grid1)
 

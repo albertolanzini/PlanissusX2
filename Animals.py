@@ -1,5 +1,6 @@
 from Constants import *
 from Groups import *
+import random
 
 
 class Animal:
@@ -14,6 +15,8 @@ class Animal:
     def ageing(self):
         print(f"Aging animal with id {self.id}")
         self.age += 1
+        if self.age % 10 == 0 and self.age != 0:
+            self.expend_energy(5) # value to be later determined
         if self.age > self.lifetime:
             self.die()
 
@@ -129,8 +132,26 @@ class Erbast(Animal):
         if self.herd:
             self.herd.remove_member(self)
         self.herd = None
-        
-        
 
     def leave_group(self):
         self.leave_herd()
+
+    def should_move(self):
+        probability_of_moving = 0.2
+
+        # 1st condition: Increase the probability a lot if a Carviz is in the cell
+        carviz_present = any(isinstance(animal, Carviz) for animal in self.cell.inhabitants)
+
+        if carviz_present:
+            probability_of_moving += 0.5
+
+        # 2nd condition: Decrease probability if energy is very low
+        if self.energy < 15:
+            probability_of_moving -= 0.4
+
+        if self.cell.get_vegetob_amount() < 20:
+            probability_of_moving += 0.3
+
+        probability_of_moving = max(0, min(probability_of_moving, 1))
+
+        return random.random() < probability_of_moving
