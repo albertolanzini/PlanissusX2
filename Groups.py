@@ -154,6 +154,50 @@ class Pride(AnimalGroup):
         self.id = Pride.id_counter
         Pride.id_counter += 1
 
+    def move(self):
+        # There is no need to move if there is an erbast already in the cell
+        if any(isinstance(animal, Erbast) for animal in self.cell.inhabitants):
+            return
+        
+        neighboring_cells = get_neighboring_cells(self.cell.grid, self.cell)
+        neighboring_cells = [i for i in neighboring_cells if i != self.lastVisitedCell]
+    
+        if neighboring_cells:
+            new_cell = evaluate_pride_cell(neighboring_cells)
+
+            moving_animals = [animal for animal in list(self.members) if animal.should_move()]
+    
+            if moving_animals:
+                pride_to_use = None
+                if new_cell.prides:
+                    animals = sorted(moving_animals, key=lambda animal : animal.social_attitude)
+                    for pride in new_cell.prides:
+                        if animals[0].social_attitude > self.threshold:
+                            pride_to_use = pride
+                            break
+
+                if pride_to_use is None:
+                    pride_to_use = Pride()
+                    pride_to_use.cell = new_cell
+                    pride_to_use.moved = True
+                    pride_to_use.setThreshold(self.threshold)
+                    new_cell.prides.append(pride_to_use)
+                    
+                for animal in moving_animals:
+                    print(f"Carviz with id {animal.id} is moving from cell {self.cell.position} to cell {new_cell.position}")
+                    self.cell.inhabitants.remove(animal)
+                    new_cell.inhabitants.add(animal)
+
+                    self.remove_member(animal)
+                    animal.cell = new_cell
+                    animal.pride = pride_to_use
+                    animal.join_pride(pride_to_use)
+
+                    animal.expend_energy(5)
+
+                self.lastVisitedCell = self.cell
+                pride_to_use.lastVisitedCell = self.cell
+
 
 def evaluate_herd_cell(cells_list):
     max_carviz = max(cell.count_carviz() for cell in cells_list) if cells_list else 0
@@ -175,3 +219,23 @@ def evaluate_herd_cell(cells_list):
             best_cell = cell
 
     return best_cell
+
+def evaluate_pride_cell(cells_list):
+    # Step 1: Check for number of erbasts in each cell
+    min_erbasts = min(cell.count_erbasts() for cell in cells_list) if cells_list else 0
+
+    # List of cells with the minimum number of erbasts
+    min_erbast_cells = [cell for cell in cells_list if cell.count_erbasts() == min_erbasts]
+
+    if min_erbasts > 0:
+        # If there are cells with erbasts, return the first one
+        return min_erbast_cells[0]
+    else:
+        # Step 2: If no animals are present, check for the cell with the greatest amount of vegetob
+        max_vegetob = max(cell.get_vegetob_amount() for cell in cells_list) if cells_list else 0
+
+        # List of cells with the maximum amount of vegetob
+        max_vegetob_cells = [cell for cell in cells_list if cell.get_vegetob_amount() == max_vegetob]
+
+        # Return the first cell with the maximum amount of vegetob
+        return max_vegetob_cells[0]

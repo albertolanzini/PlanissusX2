@@ -88,7 +88,6 @@ class Animal:
     def should_spawn_offspring(self):
         if self.energy <= 0:
             return False
-        
 
         energy_threshold = 20
         age_lower_threshold = 20
@@ -144,6 +143,9 @@ class Carviz(Animal):
 
     def leave_group(self):
         self.leave_pride()
+
+    def should_move(self):
+        return True
 
 
 class Erbast(Animal):

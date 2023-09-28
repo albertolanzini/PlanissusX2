@@ -70,8 +70,8 @@ def daily_actions(grid):
 def main():
     grid1 = create_grid(numCellsX, numCellsY)
 
-    populate_grid(Erbast, 15, grid1)
-    populate_grid(Carviz, 4, grid1)
+    populate_grid(Erbast, 4, grid1)
+    populate_grid(Carviz, 12, grid1)
     
     groupAnimalsStart(grid1)
 
