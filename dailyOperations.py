@@ -23,7 +23,6 @@ def groupAnimalsStart(grid):
                 pride = Pride()
                 for carviz in carviz_in_cell:
                     carviz.join_group(pride)
-                cell.prides.append(pride)
 
 
 def print_prides_and_herds(grid):

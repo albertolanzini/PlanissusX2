@@ -51,11 +51,11 @@ class Animal:
 
         # Calculate properties for offspring 1
         energy1 = min(self.energy * energy_split, 100)
-        lifetime1 = min(self.lifetime * lifetime_split, 100)
+        lifetime1 = round(min(self.lifetime * lifetime_split, 100))
 
         # Calculate properties for offspring 2
         energy2 = min(self.energy * (1 - energy_split), 100)
-        lifetime2 = min(self.lifetime * (1 - lifetime_split), 100)
+        lifetime2 = round(min(self.lifetime * (1 - lifetime_split), 100))
 
         # Adjust properties of offspring 2 to ensure the sum of the offspring's attributes is exactly double the parent's attributes
         energy2 += self.energy - (energy1 + energy2)
@@ -78,7 +78,7 @@ class Animal:
         if isinstance(self, Erbast):
             offspring1.join_group(self.herd)
             offspring2.join_group(self.herd)
-        elif isinstance(self, Pride):
+        elif isinstance(self, Carviz):
             offspring1.join_group(self.pride)
             offspring2.join_group(self.pride)
         
@@ -100,11 +100,6 @@ class Animal:
 
         return random.random() < probability
 
-
-
-
-
-        
         
 
 class Carviz(Animal):
@@ -124,17 +119,20 @@ class Carviz(Animal):
     def join_pride(self, pride):
         if self.pride is not None:
             self.pride.remove_member(self)
+        pride.cell = self.cell
         if not pride.add_member(self):
+            self.leave_pride()
             new_pride = Pride()
             new_pride.setThreshold(0)
             new_pride.add_member(self)
             self.pride = new_pride
             new_pride.cell = self.cell
-            new_pride.cell.prides.append(pride)
+            new_pride.cell.prides.append(new_pride)
         else:
             self.pride = pride
-            self.pride.cell = self.cell
-
+            pride.cell = self.cell
+            if pride not in pride.cell.prides:
+                pride.cell.prides.append(pride)
 
     def leave_pride(self):
         """Make sure to add the animal to another Pride after leaving the group. It could create varying issues to let

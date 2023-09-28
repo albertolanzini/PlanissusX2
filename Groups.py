@@ -146,9 +146,6 @@ class Herd(AnimalGroup):
             print("No animals are moving from this herd.")
 
 
-
-
-
 class Pride(AnimalGroup):
     id_counter = MAX_HERDS
 
