@@ -1,7 +1,7 @@
 from Constants import *
 from Groups import *
 import random
-
+import math
 
 class Animal:
     def __init__(self, energy, lifetime, social_attitude, cell):
@@ -27,7 +27,9 @@ class Animal:
         return self.cell
 
     def die(self):
-        # self.spawn_offspring()
+        if self.should_spawn_offspring():
+            print(f"Erbast {self.id} has spawned two erbasts")
+            self.spawn_offspring()
         self.leave_group()
         self.dead = True
 
@@ -65,22 +67,45 @@ class Animal:
             social_attitude=self.social_attitude,
             cell=self.cell
         )
+
         offspring2 = self.__class__(
             energy=energy2,
             lifetime=lifetime2,
             social_attitude=self.social_attitude,
             cell=self.cell
         )
+
         if isinstance(self, Erbast):
             offspring1.join_group(self.herd)
             offspring2.join_group(self.herd)
-        else:
+        elif isinstance(self, Pride):
             offspring1.join_group(self.pride)
             offspring2.join_group(self.pride)
         
         self.cell.inhabitants.add(offspring1)
         self.cell.inhabitants.add(offspring2)
 
+    def should_spawn_offspring(self):
+        if self.energy <= 0:
+            return False
+        
+
+        energy_threshold = 20
+        age_lower_threshold = 20
+
+        energy_factor = 1 / (1 + math.exp(-self.energy + energy_threshold))
+        age_factor = 1 / (1 + math.exp(-self.age + age_lower_threshold))
+
+        probability = energy_factor * age_factor
+
+        return random.random() < probability
+
+
+
+
+
+        
+        
 
 class Carviz(Animal):
     id_counter = 0  # Class variable to ensure unique ids for each Carviz

@@ -14,6 +14,7 @@ def daily_actions(grid):
     - It ages all the herds and prides in the cell.
     - It then triggers the movement of herds in the cell.
     """
+    
     for row in grid:
         for cell in row:
             
