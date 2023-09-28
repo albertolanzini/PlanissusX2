@@ -16,6 +16,7 @@ class AnimalGroup:
         self.threshold = threshold
         self.cell = None
         self.moved = False
+        self.lastVisitedCell = None
 
     def add_member(self, animal):
         if len(self.members) < self.max_size and animal not in self.members:
@@ -50,7 +51,6 @@ class AnimalGroup:
         while i < len(self.members):
             animal = self.members[i]
             animal.ageing()
-            animal.expend_energy(2)
             if animal.dead:
                 self.remove_member(animal)
             else:
@@ -66,15 +66,43 @@ class Herd(AnimalGroup):
         Herd.id_counter += 1
 
     def graze(self):
-        for erbast in self.members:
-            vegetob_available = erbast.get_cell().vegetob.get_density()
-            vegetob_per_erbast = vegetob_available/len(self.members)
-            erbast.graze(vegetob_per_erbast)
+        """
+        The animals will be sorted in ascending manner and the amount of vegetob per animal will be weighted
+        thanks to the energy level, so that the animals with a lower energy inside the herd get more and the 
+        others get less.
+        When multiple herds are present in the cell, I decided to adopt a First come, first served mechanism
+        as it resembles nature better and it creates a more dynamic environment.
+        """
+    
+        vegetob_available = self.cell.get_vegetob_amount()
+        print(f"Total vegetob available: {vegetob_available}")
+
+
+        # Sort the erbasts based on their energy levels in ascending order
+        sorted_members = sorted(self.members, key=lambda erbast: erbast.energy)
+
+        # Calculate the total energy deficit of all erbasts in the herd
+        total_deficit = sum([100 - erbast.energy for erbast in sorted_members])
+        print(f"Total energy deficit: {total_deficit}")
+
+
+        # Calculate the total amount of vegetob that each erbast should eat
+        vegetob_per_erbast = [((100 - erbast.energy) / total_deficit) * vegetob_available if total_deficit else 0 for erbast in sorted_members]
+
+        erbast_vegetob_pairs = zip(sorted_members, vegetob_per_erbast)
+
+        # Distribute the vegetob among the erbasts
+        for erbast, vegetob in erbast_vegetob_pairs:
+            print(f"Erbast {erbast.id} with energy {erbast.energy} is about to eat {vegetob} vegetob")
+            erbast.eat_vegetob(vegetob)
+            print(f"Erbast's energy after eating: {erbast.energy}")
+
 
 
     def move(self):
         
         neighboring_cells = get_neighboring_cells(self.cell.grid, self.cell)
+        neighboring_cells = [i for i in neighboring_cells if i != self.lastVisitedCell]
         
         if neighboring_cells:
             new_cell = evaluate_herd_cell(neighboring_cells)
@@ -90,27 +118,30 @@ class Herd(AnimalGroup):
                             herd_to_use = herd
                             break
 
-                    if herd_to_use is None:
-                        herd_to_use = Herd()
-                        herd_to_use.cell = new_cell
-                        herd_to_use.moved = True
-                        herd_to_use.setThreshold(self.threshold)
-                        new_cell.herds.append(herd_to_use)
+                if herd_to_use is None:
+                    herd_to_use = Herd()
+                    herd_to_use.cell = new_cell
+                    herd_to_use.moved = True
+                    herd_to_use.setThreshold(self.threshold)
+                    new_cell.herds.append(herd_to_use)
                         
 
 
-                    for animal in moving_animals:
-                        print(f"Erbast with id {animal.id} is moving from cell {self.cell.position} to cell {new_cell.position}")
-                        self.cell.inhabitants.remove(animal)
-                        new_cell.inhabitants.add(animal)
+                for animal in moving_animals:
+                    print(f"Erbast with id {animal.id} is moving from cell {self.cell.position} to cell {new_cell.position}")
+                    self.cell.inhabitants.remove(animal)
+                    new_cell.inhabitants.add(animal)
 
-                        self.remove_member(animal)
-                        animal.cell = new_cell
-                        animal.herd = herd_to_use
-                        animal.join_herd(herd_to_use)
+                    self.remove_member(animal)
+                    animal.cell = new_cell
+                    animal.herd = herd_to_use
+                    animal.join_herd(herd_to_use)
 
-                        animal.expend_energy(5)
-                    
+                    animal.expend_energy(5)
+
+                self.lastVisitedCell = self.cell
+                herd_to_use.lastVisitedCell = self.cell
+        
         else:
             print("No animals are moving from this herd.")
 

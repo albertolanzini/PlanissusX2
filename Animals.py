@@ -27,6 +27,7 @@ class Animal:
         return self.cell
 
     def die(self):
+        # self.spawn_offspring()
         self.leave_group()
         self.dead = True
 
@@ -40,6 +41,45 @@ class Animal:
         self.energy -= amount
         if self.energy <= 0:
             self.die()
+
+    def spawn_offspring(self):
+        # Generate random proportions for the properties
+        energy_split = random.random()
+        lifetime_split = random.random()
+
+        # Calculate properties for offspring 1
+        energy1 = min(self.energy * energy_split, 100)
+        lifetime1 = min(self.lifetime * lifetime_split, 100)
+
+        # Calculate properties for offspring 2
+        energy2 = min(self.energy * (1 - energy_split), 100)
+        lifetime2 = min(self.lifetime * (1 - lifetime_split), 100)
+
+        # Adjust properties of offspring 2 to ensure the sum of the offspring's attributes is exactly double the parent's attributes
+        energy2 += self.energy - (energy1 + energy2)
+        lifetime2 += self.lifetime - (lifetime1 + lifetime2)
+
+        offspring1 = self.__class__(
+            energy=energy1,
+            lifetime=lifetime1,
+            social_attitude=self.social_attitude,
+            cell=self.cell
+        )
+        offspring2 = self.__class__(
+            energy=energy2,
+            lifetime=lifetime2,
+            social_attitude=self.social_attitude,
+            cell=self.cell
+        )
+        if isinstance(self, Erbast):
+            offspring1.join_group(self.herd)
+            offspring2.join_group(self.herd)
+        else:
+            offspring1.join_group(self.pride)
+            offspring2.join_group(self.pride)
+        
+        self.cell.inhabitants.add(offspring1)
+        self.cell.inhabitants.add(offspring2)
 
 
 class Carviz(Animal):
@@ -118,9 +158,10 @@ class Erbast(Animal):
                 herd.cell.herds.append(herd)
 
 
-    def graze(self, vegetob_available):
+    def eat_vegetob(self, vegetob_available):
         # The Erbast eats the biggest amount of Vegetob to reach maximum energy (100)
         amount_needed = max(0, 100 - self.energy)
+
         # limit the consumption to the available vegetob
         amount_needed = min(amount_needed, vegetob_available)
         energy_gain = self.cell.vegetob.consume(amount_needed)

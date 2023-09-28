@@ -1,7 +1,7 @@
 nCarviz = 0
 nErbast = 0
-numCellsX = 9
-numCellsY = 9
+numCellsX = 6
+numCellsY = 6
 MAX_LIFETIME = 100
 MAX_HERDS = 10
 MAX_PRIDES = 10

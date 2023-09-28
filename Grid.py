@@ -23,6 +23,9 @@ class Cells:
 
     def count_carviz(self):
         return sum(1 for animal in self.inhabitants if isinstance(animal, Carviz))
+    
+    def count_erbast(self):
+        return sum(1 for animal in self.inhabitants if isinstance(animal, Erbast))
         
     def get_vegetob_amount(self):
         return self.vegetob.get_density() if self.vegetob else 0

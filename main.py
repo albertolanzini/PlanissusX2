@@ -22,14 +22,14 @@ def daily_actions(grid):
                 # 1 step - Vegetob growth
                 cell.vegetob.growing()
 
-                # 2 step - Aging
-                for herd in list(cell.herds):
-                    herd.age_group()
+                # Preliminary step to make sure all herds can possibly move
+                for herd in cell.herds:
                     herd.moved = False
 
-                for pride in list(cell.prides):
-                    pride.age_group()
+                for pride in cell.prides:
                     pride.moved = False
+
+    # 2 step - Movement (only herd for now)
     
     for row in grid:
         for cell in row:
@@ -38,13 +38,39 @@ def daily_actions(grid):
 
                 for herd in list(cell.herds):
                     herd.move()
-                    herd.moved = True
+                    
+
+    # 3 step - Grazing
+
+    for row in grid:
+        for cell in row:
+            if cell.type == 'ground':
+                for herd in cell.herds:
+                    if not herd.moved:
+                        herd.graze()
+
+    # 4 step - 
+    
+    for row in grid:
+        for cell in row:
+            pass
+
+    # 5 step - Aging and (eventually) energy expenditure and spawning
+
+    for row in grid:
+        for cell in row:
+            if cell.type == 'ground':
+                for herd in cell.herds:
+                    herd.age_group()
+                for pride in cell.prides:
+                    pride.age_group()
+                
 
 def main():
     grid1 = create_grid(numCellsX, numCellsY)
 
-    populate_grid(Erbast, 100, grid1)
-    populate_grid(Carviz, 20, grid1)
+    populate_grid(Erbast, 15, grid1)
+    populate_grid(Carviz, 4, grid1)
     
     groupAnimalsStart(grid1)
 
