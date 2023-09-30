@@ -1,5 +1,5 @@
 from Constants import *
-from Groups import *
+from Groups import Pride, Herd
 import random
 import math
 
@@ -13,7 +13,7 @@ class Animal:
         self.dead = False
 
     def ageing(self):
-        print(f"Aging animal with id {self.id}")
+        # print(f"Aging animal with id {self.id}")
         self.age += 1
         if self.age % 10 == 0 and self.age != 0:
             self.expend_energy(5) # value to be later determined
@@ -76,6 +76,7 @@ class Animal:
         )
 
         if isinstance(self, Erbast):
+            print(f"Erbast {self.id} spawned two offsprings")
             offspring1.join_group(self.herd)
             offspring2.join_group(self.herd)
         elif isinstance(self, Carviz):

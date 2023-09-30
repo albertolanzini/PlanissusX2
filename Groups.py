@@ -34,7 +34,7 @@ class AnimalGroup:
             self.members.remove(animal)
 
         if not self.members and self in self.cell.herds:
-            self.cell.herds.remove(self)    
+            self.cell.herds.remove(self)
 
     @property
     def getSize(self):
@@ -45,6 +45,12 @@ class AnimalGroup:
 
     def setThreshold(self, value):
         self.threshold = value
+
+    def get_average_social_attitude(self):
+        return sum(member.social_attitude for member in self.members) / self.getSize
+    
+    def get_average_energy(self):
+        return sum(member.energy for member in self.members) / self.getSize
 
     def age_group(self):
         i = 0
@@ -75,15 +81,12 @@ class Herd(AnimalGroup):
         """
     
         vegetob_available = self.cell.get_vegetob_amount()
-        print(f"Total vegetob available: {vegetob_available}")
-
 
         # Sort the erbasts based on their energy levels in ascending order
         sorted_members = sorted(self.members, key=lambda erbast: erbast.energy)
 
         # Calculate the total energy deficit of all erbasts in the herd
         total_deficit = sum([100 - erbast.energy for erbast in sorted_members])
-        print(f"Total energy deficit: {total_deficit}")
 
 
         # Calculate the total amount of vegetob that each erbast should eat
@@ -93,9 +96,7 @@ class Herd(AnimalGroup):
 
         # Distribute the vegetob among the erbasts
         for erbast, vegetob in erbast_vegetob_pairs:
-            print(f"Erbast {erbast.id} with energy {erbast.energy} is about to eat {vegetob} vegetob")
             erbast.eat_vegetob(vegetob)
-            print(f"Erbast's energy after eating: {erbast.energy}")
 
 
 
@@ -128,7 +129,7 @@ class Herd(AnimalGroup):
 
 
                 for animal in moving_animals:
-                    print(f"Erbast with id {animal.id} is moving from cell {self.cell.position} to cell {new_cell.position}")
+                    # print(f"Erbast with id {animal.id} is moving from cell {self.cell.position} to cell {new_cell.position}")
                     self.cell.inhabitants.remove(animal)
                     new_cell.inhabitants.add(animal)
 
@@ -137,13 +138,14 @@ class Herd(AnimalGroup):
                     animal.herd = herd_to_use
                     animal.join_herd(herd_to_use)
 
-                    animal.expend_energy(5)
+                    animal.expend_energy(2)
 
                 self.lastVisitedCell = self.cell
                 herd_to_use.lastVisitedCell = self.cell
         
         else:
-            print("No animals are moving from this herd.")
+            pass
+            # print("No animals are moving from this herd.")
 
 
 class Pride(AnimalGroup):
@@ -155,6 +157,8 @@ class Pride(AnimalGroup):
         Pride.id_counter += 1
 
     def move(self):
+        from Animals import Erbast
+
         # There is no need to move if there is an erbast already in the cell
         if any(isinstance(animal, Erbast) for animal in self.cell.inhabitants):
             return
@@ -184,7 +188,7 @@ class Pride(AnimalGroup):
                     new_cell.prides.append(pride_to_use)
                     
                 for animal in moving_animals:
-                    print(f"Carviz with id {animal.id} is moving from cell {self.cell.position} to cell {new_cell.position}")
+                    # print(f"Carviz with id {animal.id} is moving from cell {self.cell.position} to cell {new_cell.position}")
                     self.cell.inhabitants.remove(animal)
                     new_cell.inhabitants.add(animal)
 
@@ -193,10 +197,76 @@ class Pride(AnimalGroup):
                     animal.pride = pride_to_use
                     animal.join_pride(pride_to_use)
 
-                    animal.expend_energy(5)
+                    animal.expend_energy(2)
 
                 self.lastVisitedCell = self.cell
                 pride_to_use.lastVisitedCell = self.cell
+
+    def should_join(self, other_pride):
+        first = self.get_average_social_attitude()
+        second = other_pride.get_average_social_attitude()
+
+        # Difference in average social attitudes
+        diff_social_attitude = abs(first - second)
+
+        # The probability of joining is inversely proportional to the difference in social attitude.
+        join_probability = 1.0 / (1.0 + diff_social_attitude)
+
+        return np.random.random() < join_probability
+    
+    def feed(self, prey):
+        """
+        The animals will be sorted in ascending manner and the amount of energy per animal will be weighted
+        thanks to the energy level, so that the animals with a lower energy inside the pride get more and the 
+        others get less.
+        """
+
+        # The total energy available from the prey
+        prey_energy = prey.energy
+
+        # Sort the animals based on their energy levels in ascending order
+        sorted_members = sorted(self.members, key=lambda animal: animal.energy)
+
+        # Calculate the total energy deficit of all animals in the pride
+        total_deficit = sum([100 - animal.energy for animal in sorted_members])
+
+        # Calculate the total amount of energy that each animal should get
+        energy_per_animal = [(100 - animal.energy) / total_deficit * prey_energy if total_deficit else 0 for animal in sorted_members]
+
+        animal_energy_pairs = zip(sorted_members, energy_per_animal)
+
+        # Distribute the energy among the animals
+        for animal, energy in animal_energy_pairs:
+            animal.energy += energy
+        
+    def hunt(self):
+
+        print(f"Before hunt, herds in cell {self.cell.position}: {[herd.id for herd in self.cell.herds]}")
+
+        if len(self.cell.herds) == 0:
+            return
+
+        strongest_erbast = max(self.cell.herds[0].members, key=lambda erbast: erbast.energy)
+
+        attempts = round(self.getSize * (self.get_average_energy() / 100))
+
+        for _ in range(attempts):
+            average_energy_pride = self.get_average_energy()
+            winning_probability_pride = (average_energy_pride * self.getSize) / ((average_energy_pride * self.getSize) + strongest_erbast.energy)
+
+            if random.random() < winning_probability_pride:
+                print(f"Pride {self.id} successfully hunted Erbast {strongest_erbast.id}")
+                # Remove the Erbast from the herd
+                self.feed(strongest_erbast)
+                strongest_erbast.die()
+                break
+            else:
+                print(f"Pride {self.id} failed to hunt Erbast {strongest_erbast.id}")
+                # Choose a random member to lose energy
+                random_member = random.choice(self.members)
+                random_member.expend_energy(1)
+
+        print(f"After hunt, herds in cell {self.cell.position}: {[herd.id for herd in self.cell.herds]}")
 
 
 def evaluate_herd_cell(cells_list):
@@ -222,10 +292,10 @@ def evaluate_herd_cell(cells_list):
 
 def evaluate_pride_cell(cells_list):
     # Step 1: Check for number of erbasts in each cell
-    min_erbasts = min(cell.count_erbasts() for cell in cells_list) if cells_list else 0
+    min_erbasts = min(cell.count_erbast() for cell in cells_list) if cells_list else 0
 
     # List of cells with the minimum number of erbasts
-    min_erbast_cells = [cell for cell in cells_list if cell.count_erbasts() == min_erbasts]
+    min_erbast_cells = [cell for cell in cells_list if cell.count_erbast() == min_erbasts]
 
     if min_erbasts > 0:
         # If there are cells with erbasts, return the first one

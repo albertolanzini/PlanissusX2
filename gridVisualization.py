@@ -69,7 +69,6 @@ class GridVisualizer:
     def on_key(self, event):
         if self.mode == 'initialization':
             if event.key == ' ':
-                self.update_and_visualize()
                 if self.day_count <= NUM_DAYS:
                     print("-------------------------"
                           ""
@@ -86,9 +85,10 @@ class GridVisualizer:
                     """)
                     print_prides_and_herds(self.grid)
                     self.day_count += 1
-
+                    self.update_and_visualize()
                     self.grid_states.append({'grid': self.grid.copy(), 'day_count': self.day_count})
                     self.current_state_index = len(self.grid_states) - 1
+
 
             elif event.key == 'n':
                 self.mode = 'navigation'

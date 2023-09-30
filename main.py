@@ -4,6 +4,7 @@ from Constants import *
 from gridVisualization import *
 from Animals import *
 from dailyOperations import *
+from Struggle import *
 
 
 def daily_actions(grid):
@@ -14,13 +15,14 @@ def daily_actions(grid):
     - It ages all the herds and prides in the cell.
     - It then triggers the movement of herds in the cell.
     """
-    
+
+    # 1 step - Growing
+
     for row in grid:
         for cell in row:
             
             if cell.type == 'ground':
 
-                # 1 step - Vegetob growth
                 cell.vegetob.growing()
 
                 # Preliminary step to make sure all herds can possibly move
@@ -30,7 +32,7 @@ def daily_actions(grid):
                 for pride in cell.prides:
                     pride.moved = False
 
-    # 2 step - Movement (only herd for now)
+    # 2 step - Movement
     
     for row in grid:
         for cell in row:
@@ -39,6 +41,13 @@ def daily_actions(grid):
 
                 for herd in list(cell.herds):
                     herd.move()
+
+    for row in grid:
+        for cell in row:
+            if cell.type == 'ground':
+                
+                for pride in list(cell.prides):
+                    pride.move()
                     
 
     # 3 step - Grazing
@@ -50,11 +59,37 @@ def daily_actions(grid):
                     if not herd.moved:
                         herd.graze()
 
-    # 4 step - 
-    
+    # Preliminary step to remove all possible empty herds/prides leftover
+
     for row in grid:
         for cell in row:
-            pass
+            if cell.type == 'ground':
+
+                for pride in list(cell.prides):
+                    if not pride.members:
+                        cell.prides.remove(pride)
+    
+    # 4.1 : Herd merging and prides fighting
+
+    for row in grid:
+        for cell in row:
+            if cell.type == 'ground':
+                
+                # Merge the herds in the cell to make sure it is a single one
+                merge_herds(cell)
+
+                # The prides will join or fight until there is only one left in the cell
+                evaluate_and_fight_prides(cell)
+                
+
+    # 4.2 : Hunt
+
+    for row in grid:
+        for cell in row:
+            if cell.type == 'ground':
+                
+                for pride in list(cell.prides):
+                    pride.hunt()
 
     # 5 step - Aging and (eventually) energy expenditure and spawning
 
@@ -65,13 +100,13 @@ def daily_actions(grid):
                     herd.age_group()
                 for pride in cell.prides:
                     pride.age_group()
-                
+
 
 def main():
     grid1 = create_grid(numCellsX, numCellsY)
 
-    populate_grid(Erbast, 4, grid1)
-    populate_grid(Carviz, 12, grid1)
+    populate_grid(Erbast, 100, grid1)
+    populate_grid(Carviz, 100, grid1)
     
     groupAnimalsStart(grid1)
 
