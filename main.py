@@ -56,7 +56,8 @@ def daily_actions(grid):
         for cell in row:
             if cell.type == 'ground':
                 for herd in cell.herds:
-                        herd.graze()
+                        if not herd.moved:
+                            herd.graze()
 
     # Preliminary step to remove all possible empty herds/prides leftover
 
@@ -99,6 +100,13 @@ def daily_actions(grid):
                     herd.age_group()
                 for pride in cell.prides:
                     pride.age_group()
+
+    for row in grid:
+        for cell in row:
+            if cell.type == 'ground':
+                for animal in list(cell.inhabitants):
+                    if animal.dead:
+                        cell.inhabitants.remove(animal)
 
 def count_ground_cells(grid):
     count = 0

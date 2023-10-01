@@ -112,20 +112,9 @@ class GridVisualizer:
             if event.key == ' ':
                 
                 if self.day_count <= NUM_DAYS:
-                    print("-------------------------"
-                          ""
-                          "GIORNO NUMERO - ", self.day_count,
-                          ""
-                          "-------------------------")
-                    print_prides_and_herds(self.grid)
-                    print("""
-                    ------------------------------
-                    """)
+                    
                     daily_actions(self.grid)
-                    print("""
-                    ------------------------------
-                    """)
-                    print_prides_and_herds(self.grid)
+                    
                     self.update_and_visualize()
                     self.day_count += 1
                     self.grid_states.append({'grid': self.grid.copy(), 'day_count': self.day_count})

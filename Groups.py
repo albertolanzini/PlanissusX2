@@ -143,7 +143,7 @@ class Herd(AnimalGroup):
                     animal.herd = herd_to_use
                     animal.join_herd(herd_to_use)
 
-                    animal.expend_energy(2)
+                    animal.expend_energy(5)
 
                 self.lastVisitedCell = self.cell
                 herd_to_use.lastVisitedCell = self.cell
@@ -170,9 +170,16 @@ class Pride(AnimalGroup):
         
         neighboring_cells = get_neighboring_cells(self.cell.grid, self.cell)
         neighboring_cells = [i for i in neighboring_cells if i != self.lastVisitedCell]
+            
     
         if neighboring_cells:
-            new_cell = evaluate_pride_cell(neighboring_cells)
+            if random.random() > 0.85:
+                new_cell = random.choice(neighboring_cells)
+            else:
+                new_cell = evaluate_pride_cell(neighboring_cells)
+
+            if new_cell.count_carviz() >= 20:
+                return
 
             moving_animals = [animal for animal in list(self.members) if animal.should_move()]
     
@@ -193,6 +200,8 @@ class Pride(AnimalGroup):
                     new_cell.prides.append(pride_to_use)
                     
                 for animal in moving_animals:
+                    if new_cell.count_erbast() == 20:
+                        return
                     # print(f"Carviz with id {animal.id} is moving from cell {self.cell.position} to cell {new_cell.position}")
                     self.cell.inhabitants.remove(animal)
                     new_cell.inhabitants.add(animal)
@@ -202,7 +211,7 @@ class Pride(AnimalGroup):
                     animal.pride = pride_to_use
                     animal.join_pride(pride_to_use)
 
-                    animal.expend_energy(2)
+                    animal.expend_energy(5)
 
                 self.lastVisitedCell = self.cell
                 pride_to_use.lastVisitedCell = self.cell
@@ -240,8 +249,8 @@ class Pride(AnimalGroup):
 
         animal_energy_pairs = zip(sorted_members, energy_per_animal)
 
-        print(prey_energy)
-        print(animal_energy_pairs)
+        # print(prey_energy)
+        # print(animal_energy_pairs)
         
 
         # Distribute the energy among the animals

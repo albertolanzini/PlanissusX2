@@ -1,7 +1,9 @@
 import numpy as np
 import random
+
 from Vegetob import Vegetob
 from Animals import Erbast, Carviz
+from Constants import *
 
 
 class Cells:
@@ -59,7 +61,7 @@ def populate_grid(animal_class, n, grid):
             i = random.randint(0, len(grid) - 1)
             j = random.randint(0, len(grid[0]) - 1)
 
-            if grid[i][j].type == 'ground':
+            if grid[i][j].type == 'ground' and sum(isinstance(animal, animal_class) for animal in grid[i][j].inhabitants) < MAX_SIZE:
                 energy = random.randint(50, 80)
                 lifetime = random.randint(50, 100)
 

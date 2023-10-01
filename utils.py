@@ -1,6 +1,6 @@
 import numpy as np
 
-def get_neighboring_cells(grid, cell, radius=1):
+def get_neighboring_cells(grid, cell, radius=2):
     current_x, current_y = cell.position
     neighboring_cells = []
     # Getting the dimensions using np.shape
