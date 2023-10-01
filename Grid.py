@@ -46,7 +46,7 @@ def create_grid(numcellsx, numcellsy):
                     grid[i][j] = Cells('water')
                     grid[i][j].position = (i, j)
                 else:
-                    vegetob_density = random.randint(20, 80)
+                    vegetob_density = random.randint(60, 80)
                     grid[i][j] = Cells('ground', Vegetob(vegetob_density), grid=grid)
                     grid[i][j].position = (i, j)
 

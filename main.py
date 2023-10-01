@@ -56,7 +56,6 @@ def daily_actions(grid):
         for cell in row:
             if cell.type == 'ground':
                 for herd in cell.herds:
-                    if not herd.moved:
                         herd.graze()
 
     # Preliminary step to remove all possible empty herds/prides leftover
@@ -101,12 +100,27 @@ def daily_actions(grid):
                 for pride in cell.prides:
                     pride.age_group()
 
+def count_ground_cells(grid):
+    count = 0
+    for row in grid:
+        for cell in row:
+            if cell.type == 'ground':
+                count += 1
+    return count
 
 def main():
+    # Grid creations
     grid1 = create_grid(numCellsX, numCellsY)
 
-    populate_grid(Erbast, 100, grid1)
-    populate_grid(Carviz, 100, grid1)
+    # Count the ground cells and calculate the max number of Carviz and Erbast to make sure
+    # the world does not exceed its limits. This step is necessary to ensure better performance.
+    ground_cells = count_ground_cells(grid1)
+
+    nCarvizes = min(nCarviz, ground_cells*MAX_SIZE)
+    nErbasts = min(nErbast, ground_cells*MAX_SIZE)
+
+    populate_grid(Erbast, nErbasts, grid1)
+    populate_grid(Carviz, nCarvizes, grid1)
     
     groupAnimalsStart(grid1)
 

@@ -45,21 +45,15 @@ class Animal:
             self.die()
 
     def spawn_offspring(self):
-        # Generate random proportions for the properties
-        energy_split = random.random()
-        lifetime_split = random.random()
+         # Generate lifetime for the offspring using standard deviation
+        mean_lifetime = self.lifetime
+        std_dev_lifetime = mean_lifetime * 0.1  # Assuming standard deviation is 10% of the mean
+        lifetime1 = max(0, min(round(random.gauss(mean_lifetime, std_dev_lifetime)), 100))
+        lifetime2 = (2 * self.lifetime) - lifetime1
 
-        # Calculate properties for offspring 1
-        energy1 = min(self.energy * energy_split, 100)
-        lifetime1 = round(min(self.lifetime * lifetime_split, 100))
-
-        # Calculate properties for offspring 2
-        energy2 = min(self.energy * (1 - energy_split), 100)
-        lifetime2 = round(min(self.lifetime * (1 - lifetime_split), 100))
-
-        # Adjust properties of offspring 2 to ensure the sum of the offspring's attributes is exactly double the parent's attributes
-        energy2 += self.energy - (energy1 + energy2)
-        lifetime2 += self.lifetime - (lifetime1 + lifetime2)
+        # Generate energy for the offspring with a fixed value between 35 and 60
+        energy1 = random.randint(35, 60)
+        energy2 = random.randint(35, 60)
 
         offspring1 = self.__class__(
             energy=energy1,
@@ -75,16 +69,26 @@ class Animal:
             cell=self.cell
         )
 
+
         if isinstance(self, Erbast):
             print(f"Erbast {self.id} spawned two offsprings")
+            print(f"Before adding, herd members: {[erbast.id for erbast in self.herd.members]}")
             offspring1.join_group(self.herd)
             offspring2.join_group(self.herd)
+            print(f"Spawned offspring 1 with ID: {offspring1.id}, energy: {offspring1.energy}, lifetime: {offspring1.lifetime}, herd: {offspring1.herd.id}")
+            print(f"Spawned offspring 2 with ID: {offspring2.id}, energy: {offspring2.energy}, lifetime: {offspring2.lifetime}, herd: {offspring2.herd.id}")
+            print(f"After adding, herd members: {[erbast.id for erbast in self.herd.members]}")
         elif isinstance(self, Carviz):
+            print(f"Carviz {self.id} spawned two offsprings")
+            print(f"Before adding, pride members: {[carviz.id for carviz in self.pride.members]}")
             offspring1.join_group(self.pride)
             offspring2.join_group(self.pride)
-        
+            print(f"After adding, pride members: {[carviz.id for carviz in self.pride.members]}")
+
+        print(f"Before adding, cell inhabitants: {[animal.id for animal in self.cell.inhabitants]}")
         self.cell.inhabitants.add(offspring1)
         self.cell.inhabitants.add(offspring2)
+        print(f"After adding, cell inhabitants: {[animal.id for animal in self.cell.inhabitants]}")
 
     def should_spawn_offspring(self):
         if self.energy <= 0:

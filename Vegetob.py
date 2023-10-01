@@ -7,7 +7,7 @@ class Vegetob:
 
     def growing(self):
         if self.density < 100:
-            self.density += 1
+            self.density = min(100, self.density + 3)
 
     def consume(self, amount_needed):
         # Amount needed is the amount of Vegetob the Erbast needs to reach maximum energy

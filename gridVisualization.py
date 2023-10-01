@@ -9,7 +9,7 @@ from dailyOperations import *
 class GridVisualizer:
     def __init__(self, grid):
         self.grid = grid
-        self.fig, self.axs = plt.subplots(2, 1, figsize=(10, 20))
+        self.fig, self.axs = plt.subplots(2, 2, figsize=(15, 10))
         self.vegetob_density_grid = np.zeros((len(grid), len(grid[0])))
         self.animal_presence_grid = np.zeros((len(grid), len(grid[0])))
         self.day_count = 1
@@ -21,19 +21,29 @@ class GridVisualizer:
         self.im_animal_presence = None
         self.day_text = None
 
+        self.erbast_population = []
+        self.carviz_population = []
+
+        self.erbast_energy = []
+        self.carviz_energy = []
+
         self.setup_visuals()
 
     def setup_visuals(self):
-        self.im_vegetob_density = self.axs[0].imshow(self.vegetob_density_grid, cmap='Greens', vmin=0, vmax=100)
-        self.im_animal_presence = self.axs[1].imshow(self.animal_presence_grid, cmap='bwr', vmin=0, vmax=2)
+        self.axs[0, 0].set_title('Erbast and Carviz Population')
+        self.axs[0, 0].set_xlabel('Day')
+        self.axs[0, 0].set_ylabel('Population')
 
-        self.axs[0].set_title('Vegetob Density')
-        self.axs[1].set_title('Animal Presence')
+        self.im_vegetob_density = self.axs[0, 1].imshow(self.vegetob_density_grid, cmap='Greens', vmin=0, vmax=100)
+        self.axs[0, 1].set_title('Vegetob Density')
 
-        self.fig.colorbar(self.im_vegetob_density, ax=self.axs[0], orientation='vertical')
-        self.fig.colorbar(self.im_animal_presence, ax=self.axs[1], orientation='vertical')
+        self.im_animal_presence = self.axs[1, 1].imshow(self.animal_presence_grid, cmap='bwr', vmin=0, vmax=2)
+        self.axs[1, 1].set_title('Animal Presence')
 
-        self.day_text = self.axs[0].text(0.45, 1.075, '', transform=self.axs[0].transAxes)
+        self.fig.colorbar(self.im_vegetob_density, ax=self.axs[0, 1], orientation='vertical')
+        self.fig.colorbar(self.im_animal_presence, ax=self.axs[1, 1], orientation='vertical')
+
+        self.day_text = self.axs[0, 0].text(0.45, 1.075, '', transform=self.axs[0, 0].transAxes)
 
         self.fig.canvas.mpl_connect('key_press_event', self.on_key)
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
@@ -51,6 +61,7 @@ class GridVisualizer:
                         1 for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
                     total_animals = carviz_count + erbast_count
 
+
                     if total_animals > 0:
                         carviz_ratio = carviz_count / total_animals
                         erbast_ratio = erbast_count / total_animals
@@ -58,8 +69,38 @@ class GridVisualizer:
                     else:
                         self.animal_presence_grid[i][j] = 0
 
+        # Update population data
+        erbast_count = sum(1 for row in self.grid for cell in row for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
+        carviz_count = sum(1 for row in self.grid for cell in row for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
+        self.erbast_population.append(erbast_count)
+        self.carviz_population.append(carviz_count)
+
+        self.axs[0, 0].clear()
+        self.axs[0, 0].set_title('Erbast and Carviz Population')
+        self.axs[0, 0].plot(self.erbast_population, color='blue', label='Erbast')
+        self.axs[0, 0].plot(self.carviz_population, color='red', label='Carviz')
+        self.axs[0, 0].legend()
+
+        erbast_energy = sum(animal.energy for row in self.grid for cell in row for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
+        carviz_energy = sum(animal.energy for row in self.grid for cell in row for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
+
+        self.erbast_energy.append(erbast_energy / erbast_count if erbast_count > 0 else 0)
+        self.carviz_energy.append(carviz_energy / carviz_count if carviz_count > 0 else 0)
+
+        self.axs[1, 0].clear()
+        self.axs[1, 0].plot(self.erbast_energy, color='blue', label='Erbast')
+        self.axs[1, 0].plot(self.carviz_energy, color='red', label='Carviz')
+        self.axs[1, 0].set_title('Average Energy')
+        self.axs[1, 0].set_xlabel('Day')
+        self.axs[1, 0].set_ylabel('Energy')
+        self.axs[1, 0].legend()
+
         self.im_vegetob_density.set_data(self.vegetob_density_grid)
+        self.axs[0, 1].set_title('Vegetob Density')
+
         self.im_animal_presence.set_data(self.animal_presence_grid)
+        self.axs[1, 1].set_title('Animal Presence')
+
         self.day_text.set_text('Day: {}'.format(self.day_count))
         plt.draw()
 
@@ -69,6 +110,7 @@ class GridVisualizer:
     def on_key(self, event):
         if self.mode == 'initialization':
             if event.key == ' ':
+                
                 if self.day_count <= NUM_DAYS:
                     print("-------------------------"
                           ""
@@ -84,11 +126,10 @@ class GridVisualizer:
                     ------------------------------
                     """)
                     print_prides_and_herds(self.grid)
-                    self.day_count += 1
                     self.update_and_visualize()
+                    self.day_count += 1
                     self.grid_states.append({'grid': self.grid.copy(), 'day_count': self.day_count})
                     self.current_state_index = len(self.grid_states) - 1
-
 
             elif event.key == 'n':
                 self.mode = 'navigation'
@@ -124,7 +165,7 @@ class GridVisualizer:
         self.update_and_visualize()
 
     def on_click(self, event):
-        if event.inaxes == self.axs[0] or event.inaxes == self.axs[1]:
+        if event.inaxes == self.axs[0, 1] or event.inaxes == self.axs[1, 1]:
             i = int(event.ydata + 0.5)
             j = int(event.xdata + 0.5)
             cell = self.grid[i][j]
@@ -145,10 +186,10 @@ class GridVisualizer:
                 for animal in cell.inhabitants:
                     if isinstance(animal, Erbast) and not animal.dead:
                         erbast_count += 1
-                        print(f"Erbast {erbast_count}, age: {animal.age}, lifetime: {animal.lifetime}, herd: {animal.herd.id}")
+                        print(f"Erbast {erbast_count}, ID: {animal.id}, age: {animal.age}, lifetime: {animal.lifetime}, herd: {animal.herd.id}")
                     elif isinstance(animal, Carviz) and not animal.dead:
                         carviz_count += 1
-                        print(f"Carviz {carviz_count} age: {animal.age}, lifetime: {animal.lifetime}, pride: {animal.pride.id}")
-                        # print(f"Carviz {carviz_count} age: {animal.age}, lifetime: {animal.lifetime}, pride: {animal.pride.id}")
+                        print(f"Carviz {carviz_count}, age: {animal.age}, lifetime: {animal.lifetime}, pride: {animal.pride.id}, energy: {animal.energy}")
+                        
 
 

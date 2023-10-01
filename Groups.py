@@ -108,6 +108,9 @@ class Herd(AnimalGroup):
         if neighboring_cells:
             new_cell = evaluate_herd_cell(neighboring_cells)
 
+            if new_cell.count_erbast() == 20:
+                return
+
             moving_animals = [animal for animal in list(self.members) if animal.should_move()]
         
             if moving_animals:
@@ -129,6 +132,8 @@ class Herd(AnimalGroup):
 
 
                 for animal in moving_animals:
+                    if new_cell.count_erbast() == 20:
+                        return
                     # print(f"Erbast with id {animal.id} is moving from cell {self.cell.position} to cell {new_cell.position}")
                     self.cell.inhabitants.remove(animal)
                     new_cell.inhabitants.add(animal)
@@ -235,13 +240,20 @@ class Pride(AnimalGroup):
 
         animal_energy_pairs = zip(sorted_members, energy_per_animal)
 
+        print(prey_energy)
+        print(animal_energy_pairs)
+        
+
         # Distribute the energy among the animals
         for animal, energy in animal_energy_pairs:
-            animal.energy += energy
+            # print(f"Before feeding: Carviz {animal.id}, energy: {animal.energy}")
+            animal.energy += min(energy, 100 - animal.energy)  # Ensure the energy never exceeds 100
+            # print(f"After feeding: Carviz {animal.id}, energy: {animal.energy}")
+
         
     def hunt(self):
 
-        print(f"Before hunt, herds in cell {self.cell.position}: {[herd.id for herd in self.cell.herds]}")
+        # print(f"Before hunt, herds in cell {self.cell.position}: {[herd.id for herd in self.cell.herds]}")
 
         if len(self.cell.herds) == 0:
             return
@@ -255,18 +267,18 @@ class Pride(AnimalGroup):
             winning_probability_pride = (average_energy_pride * self.getSize) / ((average_energy_pride * self.getSize) + strongest_erbast.energy)
 
             if random.random() < winning_probability_pride:
-                print(f"Pride {self.id} successfully hunted Erbast {strongest_erbast.id}")
+                # print(f"Pride {self.id} successfully hunted Erbast {strongest_erbast.id}")
                 # Remove the Erbast from the herd
                 self.feed(strongest_erbast)
                 strongest_erbast.die()
                 break
             else:
-                print(f"Pride {self.id} failed to hunt Erbast {strongest_erbast.id}")
+                # print(f"Pride {self.id} failed to hunt Erbast {strongest_erbast.id}")
                 # Choose a random member to lose energy
                 random_member = random.choice(self.members)
-                random_member.expend_energy(1)
+                random_member.expend_energy(5)
 
-        print(f"After hunt, herds in cell {self.cell.position}: {[herd.id for herd in self.cell.herds]}")
+        # print(f"After hunt, herds in cell {self.cell.position}: {[herd.id for herd in self.cell.herds]}")
 
 
 def evaluate_herd_cell(cells_list):
