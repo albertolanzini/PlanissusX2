@@ -24,6 +24,8 @@ def daily_actions(grid):
             if cell.type == 'ground':
 
                 cell.vegetob.growing()
+                
+                cell.spread_poison()
 
                 # Preliminary step to make sure all herds can possibly move
                 for herd in cell.herds:

@@ -107,6 +107,10 @@ class Animal:
 
         probability = energy_factor * age_factor
 
+        # Increase the probability for Carviz animals
+        if isinstance(self, Carviz):
+            probability *= 1.5
+
         return random.random() < probability
 
         
@@ -226,6 +230,23 @@ class Erbast(Animal):
         amount_needed = min(amount_needed, vegetob_available)
         energy_gain = self.cell.vegetob.consume(amount_needed)
         self.energy += energy_gain
+    
+    def eat_poison(self, poison_density):
+        # Decrease energy and lifetime based on the density of the poison
+        print(f"Before eating poison: Animal ID: {self.id}, Cell: {self.cell.position}, Energy: {self.energy}, Lifetime: {self.lifetime}")
+
+        energy_loss = poison_density * 0.2
+        
+        if poison_density > 15:
+            lifetime_loss = 1
+            if self.age > self.lifetime:
+                self.die()
+
+        self.expend_energy(energy_loss)
+
+        print(f"After eating poison: Animal ID: {self.id}, Cell: {self.cell.position}, Energy: {self.energy}, Lifetime: {self.lifetime}")
+        
+        
 
     def leave_herd(self):
         """Make sure to add the animal to another Pride after leaving the group. It could create varying issues to let

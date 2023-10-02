@@ -1,6 +1,7 @@
 class Vegetob:
     def __init__(self, density):
         self.density = density
+        self.poisonous = False
 
     def get_density(self):
         return self.density

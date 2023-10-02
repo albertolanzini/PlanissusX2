@@ -62,9 +62,14 @@ def fight_prides(pride1, pride2):
     # social_attitude_increment = sum(member.energy for member in loser.members) / 100
     # print(f"Winner: {winner.id}")
     # print(f"Loser: {loser.id}")
+    scaling_factor = 0.5
+    energy_expenditure = (loser.getSize / winner.getSize) * scaling_factor
 
     for member in loser.members:
         loser.cell.inhabitants.remove(member)
+
+    for member in winner.members:
+        member.expend_energy(energy_expenditure)
 
     winner.cell.prides.remove(loser)
 

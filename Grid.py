@@ -4,6 +4,7 @@ import random
 from Vegetob import Vegetob
 from Animals import Erbast, Carviz
 from Constants import *
+from utils import get_neighboring_cells
 
 
 class Cells:
@@ -31,6 +32,15 @@ class Cells:
         
     def get_vegetob_amount(self):
         return self.vegetob.get_density() if self.vegetob else 0
+    
+    def spread_poison(self):
+        if self.vegetob and self.vegetob.poisonous:
+            neighboring_cells = get_neighboring_cells(self.grid, self, radius=1)
+            new_poison_cell = random.choice(neighboring_cells)
+            if random.random() < 0.03:
+                if random.random() < 0.10:
+                    print(f"Cell at position {new_poison_cell.position} has been infected by cell {self.position}")
+                    new_poison_cell.vegetob.poisonous = True
 
 def create_grid(numcellsx, numcellsy):
     # Initialize an empty numpy array with the specified dimensions
@@ -49,7 +59,10 @@ def create_grid(numcellsx, numcellsy):
                     grid[i][j].position = (i, j)
                 else:
                     vegetob_density = random.randint(60, 80)
-                    grid[i][j] = Cells('ground', Vegetob(vegetob_density), grid=grid)
+                    vegetob = Vegetob(vegetob_density)
+                    # The vegetob will be poisonous, but only 1% of the time
+                    vegetob.poisonous = np.random.random() < 0.01
+                    grid[i][j] = Cells('ground', vegetob, grid=grid)
                     grid[i][j].position = (i, j)
 
     return grid

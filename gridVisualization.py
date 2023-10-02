@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
 from Constants import *
 from Animals import *
 from main import daily_actions
@@ -34,7 +36,11 @@ class GridVisualizer:
         self.axs[0, 0].set_xlabel('Day')
         self.axs[0, 0].set_ylabel('Population')
 
-        self.im_vegetob_density = self.axs[0, 1].imshow(self.vegetob_density_grid, cmap='Greens', vmin=0, vmax=100)
+        cmap = mcolors.LinearSegmentedColormap.from_list(
+        "Custom", [(0, 'purple'), (0.5, 'white'), (1, 'green')], N=256
+        )
+
+        self.im_vegetob_density = self.axs[0, 1].imshow(self.vegetob_density_grid, cmap=cmap, vmin=-100, vmax=100)
         self.axs[0, 1].set_title('Vegetob Density')
 
         self.im_animal_presence = self.axs[1, 1].imshow(self.animal_presence_grid, cmap='bwr', vmin=0, vmax=2)
@@ -49,29 +55,32 @@ class GridVisualizer:
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
 
     def update_and_visualize(self):
+        erbast_count = 0
+        carviz_count = 0
+
         for i in range(len(self.grid)):
             for j in range(len(self.grid[0])):
                 cell = self.grid[i][j]
                 if cell.type == 'ground':
-                    self.vegetob_density_grid[i][j] = cell.vegetob.get_density()
+                    density = cell.vegetob.get_density()
+                    self.vegetob_density_grid[i][j] = -100 if cell.vegetob.poisonous else density
 
-                    carviz_count = sum(
-                        1 for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
-                    erbast_count = sum(
-                        1 for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
-                    total_animals = carviz_count + erbast_count
 
+                    cell_carviz_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
+                    cell_erbast_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
+
+                    carviz_count += cell_carviz_count
+                    erbast_count += cell_erbast_count
+
+                    total_animals = cell_carviz_count + cell_erbast_count
 
                     if total_animals > 0:
-                        carviz_ratio = carviz_count / total_animals
-                        erbast_ratio = erbast_count / total_animals
+                        carviz_ratio = cell_carviz_count / total_animals
+                        erbast_ratio = cell_erbast_count / total_animals
                         self.animal_presence_grid[i][j] = carviz_ratio + 2 * erbast_ratio
                     else:
                         self.animal_presence_grid[i][j] = 0
 
-        # Update population data
-        erbast_count = sum(1 for row in self.grid for cell in row for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
-        carviz_count = sum(1 for row in self.grid for cell in row for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
         self.erbast_population.append(erbast_count)
         self.carviz_population.append(carviz_count)
 
@@ -80,6 +89,13 @@ class GridVisualizer:
         self.axs[0, 0].plot(self.erbast_population, color='blue', label='Erbast')
         self.axs[0, 0].plot(self.carviz_population, color='red', label='Carviz')
         self.axs[0, 0].legend()
+
+        window_size = 10  # size of the sliding window
+        recent_erbast_population = self.erbast_population[-window_size:] if len(self.erbast_population) > window_size else self.erbast_population
+        recent_carviz_population = self.carviz_population[-window_size:] if len(self.carviz_population) > window_size else self.carviz_population
+        max_recent_population = max(max(recent_erbast_population), max(recent_carviz_population))
+        self.axs[0, 0].set_ylim([0, max_recent_population * 3])
+
 
         erbast_energy = sum(animal.energy for row in self.grid for cell in row for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
         carviz_energy = sum(animal.energy for row in self.grid for cell in row for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
@@ -162,6 +178,7 @@ class GridVisualizer:
             print(f"Type: {cell.type}")
             if cell.type == 'ground':
                 print(f"Vegetob density: {cell.vegetob.get_density()}")
+                print(f"Vegetob is poisonous: {'Yes' if cell.vegetob.poisonous else 'No'}")
 
                 erbast_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
                 carviz_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)

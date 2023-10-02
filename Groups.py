@@ -79,7 +79,7 @@ class Herd(AnimalGroup):
         When multiple herds are present in the cell, I decided to adopt a First come, first served mechanism
         as it resembles nature better and it creates a more dynamic environment.
         """
-    
+
         vegetob_available = self.cell.get_vegetob_amount()
 
         # Sort the erbasts based on their energy levels in ascending order
@@ -95,8 +95,12 @@ class Herd(AnimalGroup):
         erbast_vegetob_pairs = zip(sorted_members, vegetob_per_erbast)
 
         # Distribute the vegetob among the erbasts
-        for erbast, vegetob in erbast_vegetob_pairs:
-            erbast.eat_vegetob(vegetob)
+        if not self.cell.vegetob.poisonous:
+            for erbast, vegetob in erbast_vegetob_pairs:
+                erbast.eat_vegetob(vegetob)
+        else:
+            for erbast, vegetob in erbast_vegetob_pairs:
+                erbast.eat_poison(vegetob)
 
 
 
@@ -226,9 +230,9 @@ class Pride(AnimalGroup):
         diff_social_attitude = abs(first - second)
 
         # The probability of joining is inversely proportional to the difference in social attitude.
-        join_probability = 1.0 / (1 + np.exp(-2 * diff_social_attitude))
+        join_probability = 1.0 / (1 + np.exp(-2 * (diff_social_attitude / 10)))
 
-        return np.random.random() < join_probability
+        return random.random() > join_probability
     
     def feed(self, prey):
         """
@@ -287,7 +291,7 @@ class Pride(AnimalGroup):
                 # print(f"Pride {self.id} failed to hunt Erbast {strongest_erbast.id}")
                 # Choose a random member to lose energy
                 random_member = random.choice(self.members)
-                random_member.expend_energy(5)
+                random_member.expend_energy(2)
 
         # print(f"After hunt, herds in cell {self.cell.position}: {[herd.id for herd in self.cell.herds]}")
 
