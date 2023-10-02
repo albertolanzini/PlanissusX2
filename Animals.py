@@ -155,7 +155,32 @@ class Carviz(Animal):
         self.leave_pride()
 
     def should_move(self):
-        return True
+        probability_of_moving = 0.2
+
+        
+        erbast_present = any(isinstance(animal, Erbast) and not animal.dead for animal in self.cell.inhabitants)
+
+        # Do not move if an Erbast is present in the cell
+        if erbast_present:
+            return False  
+
+        # 2nd condition: Decrease probability if energy is very low
+        if self.energy < 15:
+            probability_of_moving -= 0.4
+
+        # Change the vegetob amount condition
+        if not erbast_present:
+            probability_of_moving += 0.4
+
+        if self.cell.get_vegetob_amount() < 10:
+            probability_of_moving += 0.2
+        elif self.cell.get_vegetob_amount() > 75:
+            probability_of_moving -= 0.2
+
+
+        probability_of_moving = max(0, min(probability_of_moving, 1))
+
+        return random.random() < probability_of_moving
 
 
 class Erbast(Animal):

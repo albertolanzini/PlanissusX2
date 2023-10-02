@@ -1,4 +1,4 @@
-nCarviz = 750
+nCarviz = 1500
 nErbast = 1500
 numCellsX = 25
 numCellsY = 25

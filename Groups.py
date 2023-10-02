@@ -170,10 +170,12 @@ class Pride(AnimalGroup):
         
         neighboring_cells = get_neighboring_cells(self.cell.grid, self.cell)
         neighboring_cells = [i for i in neighboring_cells if i != self.lastVisitedCell]
+
             
     
         if neighboring_cells:
-            if random.random() > 0.85:
+            
+            if random.random() > 0.90:
                 new_cell = random.choice(neighboring_cells)
             else:
                 new_cell = evaluate_pride_cell(neighboring_cells)
@@ -211,7 +213,7 @@ class Pride(AnimalGroup):
                     animal.pride = pride_to_use
                     animal.join_pride(pride_to_use)
 
-                    animal.expend_energy(5)
+                    animal.expend_energy(2)
 
                 self.lastVisitedCell = self.cell
                 pride_to_use.lastVisitedCell = self.cell
@@ -224,7 +226,7 @@ class Pride(AnimalGroup):
         diff_social_attitude = abs(first - second)
 
         # The probability of joining is inversely proportional to the difference in social attitude.
-        join_probability = 1.0 / (1.0 + diff_social_attitude)
+        join_probability = 1.0 / (1 + np.exp(-2 * diff_social_attitude))
 
         return np.random.random() < join_probability
     
