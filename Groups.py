@@ -27,6 +27,7 @@ class AnimalGroup:
                     self.cell = animal.cell
                 
                 return True
+            
         return False
 
     def remove_member(self, animal):

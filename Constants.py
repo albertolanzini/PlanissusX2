@@ -1,7 +1,7 @@
-nCarviz = 5000
-nErbast = 5000
-numCellsX = 30
-numCellsY = 30
+nCarviz = 20
+nErbast = 20
+numCellsX = 6
+numCellsY = 6
 MAX_LIFETIME = 100
 MAX_HERDS = 100
 MAX_PRIDES = 100

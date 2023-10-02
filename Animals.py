@@ -108,8 +108,7 @@ class Animal:
         probability = energy_factor * age_factor
 
         # Increase the probability for Carviz animals
-        if isinstance(self, Carviz):
-            probability *= 1.5
+        probability *= 1.5
 
         return random.random() < probability
 

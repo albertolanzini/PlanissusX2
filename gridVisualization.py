@@ -29,7 +29,27 @@ class GridVisualizer:
         self.erbast_energy = []
         self.carviz_energy = []
 
+        self.new_animal_type = None
+
         self.setup_visuals()
+
+    def get_animal_presence_grid(self):
+        animal_presence_grid = np.zeros((len(self.grid), len(self.grid[0])))
+        for i in range(len(self.grid)):
+            for j in range(len(self.grid[0])):
+                cell = self.grid[i][j]
+                if cell.type == 'ground':
+                    cell_carviz_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
+                    cell_erbast_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
+                    total_animals = cell_carviz_count + cell_erbast_count
+
+                    if total_animals > 0:
+                        carviz_ratio = cell_carviz_count / total_animals
+                        erbast_ratio = cell_erbast_count / total_animals
+                        animal_presence_grid[i][j] = carviz_ratio + 2 * erbast_ratio
+                    else:
+                        animal_presence_grid[i][j] = 0
+        return animal_presence_grid
 
     def setup_visuals(self):
         self.axs[0, 0].set_title('Erbast and Carviz Population')
@@ -124,6 +144,9 @@ class GridVisualizer:
         plt.show()
 
     def on_key(self, event):
+
+        print(f"Key pressed: {event.key}")
+
         if self.mode == 'initialization':
             if event.key == ' ':
                 
@@ -139,6 +162,14 @@ class GridVisualizer:
             elif event.key == 'n':
                 self.mode = 'navigation'
                 print("CAREFUL - Moving to Navigation mode")
+
+            elif event.key == 'y':
+                self.mode = 'god mode'
+                print("""
+                CAREFUL - Moving to God Mode
+                You can spawn herds in ground cells by pressing h and clicking on the cell you want them to spawn in
+                You can spawn prides doing the same thing.
+                """)
 
         elif self.mode == 'navigation':
             if event.key == 'right':
@@ -156,13 +187,28 @@ class GridVisualizer:
                     print("CAREFUL - Moving to initialization mode")
                     self.mode = 'initialization'
                 else:
-                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-                          ""
-                          ""
-                          "Move to the lastly stored state to move to initialization mode"
-                          ""
-                          ""
-                          "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print("""
+                    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    
+                    Move to the lastly stored state to move to initialization mode
+                    
+                    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    """)
+        
+        elif self.mode == 'god mode':
+            if event.key == 'h':
+                self.new_animal_type = 'herd'
+                print("Ready to add a new herd. Click on a cell.")
+            elif event.key == 'p':
+                self.new_animal_type = 'pride'
+                print("Ready to add a new pride. Click on a cell.")
+            elif event.key == 'i':
+                self.mode = 'initialization'
+                print("Switching back to initialization mode.")
+            elif event.key == 'n':
+                self.mode = 'navigation'
+                print("Switching back to navigation mode.")
+
 
     def load_grid_state(self, index):
         self.grid = self.grid_states[index]['grid'].copy()
@@ -174,28 +220,88 @@ class GridVisualizer:
             i = int(event.ydata + 0.5)
             j = int(event.xdata + 0.5)
             cell = self.grid[i][j]
-            print(f"Cell at ({i}, {j})")
-            print(f"Type: {cell.type}")
-            if cell.type == 'ground':
-                print(f"Vegetob density: {cell.vegetob.get_density()}")
-                print(f"Vegetob is poisonous: {'Yes' if cell.vegetob.poisonous else 'No'}")
 
-                erbast_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
-                carviz_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
+            print(f"Click at: {cell.position}")
 
-                print(f"Erbast count: {erbast_count}")
-                print(f"Carviz count: {carviz_count}")
+            if self.mode == 'god mode':
 
-                erbast_count = 0
-                carviz_count = 0
+                print("In God Mode")
 
-                for animal in cell.inhabitants:
-                    if isinstance(animal, Erbast) and not animal.dead:
-                        erbast_count += 1
-                        print(f"Erbast {erbast_count}, ID: {animal.id}, age: {animal.age}, lifetime: {animal.lifetime}, herd: {animal.herd.id}")
-                    elif isinstance(animal, Carviz) and not animal.dead:
-                        carviz_count += 1
-                        print(f"Carviz {carviz_count}, age: {animal.age}, lifetime: {animal.lifetime}, pride: {animal.pride.id}, energy: {animal.energy}")
+                print(f"cell of type {cell.type}")
+
+                if cell.type == 'ground':
+                    num_animals = np.random.randint(1, MAX_SIZE)  # Generate a random number of animals
+
+                    if self.new_animal_type == 'herd':
+                        actual_n = 0
+                        new_herd = Herd()
+                        new_herd.setThreshold(0)
+                        new_herd.cell = cell
+                        for i in range(num_animals):
+                            if cell.count_erbast() >= 20:
+                                if not new_herd.members:
+                                    cell.herds.remove(new_herd)
+                                return
+                            
+                            energy = random.randint(50, 80)
+                            lifetime = random.randint(50, 100)
+                            social_attitude = random.random()
+                            new_animal = Erbast(energy, lifetime, social_attitude, cell)
+                            new_animal.join_group(new_herd)
+
+                            actual_n += 1
+
+                            cell.inhabitants.add(new_animal)
+
+                        print(f"Added a new herd with {num_animals} Erbasts at ({i}, {j})")
+
+                    elif self.new_animal_type == 'pride':
+                        actual_n = 0
+                        new_pride = Pride()  # Assuming Pride takes the number of animals as an argument
+                        new_pride.setThreshold(0)
+                        new_pride.cell = cell
+                        for i in range(num_animals):
+                            if cell.count_carviz() >= 20:
+                                if not new_pride.members:
+                                    cell.prides.remove(new_pride)
+                                return
+                            
+                            energy = random.randint(50, 80)
+                            lifetime = random.randint(50, 100)
+                            social_attitude = random.random()
+                            new_animal = Carviz(energy, lifetime, social_attitude, cell)
+                            new_animal.join_group(new_pride)
+
+                            cell.inhabitants.add(new_animal)
+
+                            actual_n += 1
                         
+                        print(f"Added a new pride with {actual_n} Carvizs at ({i}, {j})")
+                        
+                else:
+                    print("In God Mode you can only add Animals to a Ground cells, not to water cells")
+                
+            elif self.mode == 'initialization':
 
+                print(f"Cell at ({i}, {j})")
+                print(f"Type: {cell.type}")
+                if cell.type == 'ground':
+                    print(f"Vegetob density: {cell.vegetob.get_density()}")
+                    print(f"Vegetob is poisonous: {'Yes' if cell.vegetob.poisonous else 'No'}")
 
+                    erbast_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)
+                    carviz_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
+
+                    print(f"Erbast count: {erbast_count}")
+                    print(f"Carviz count: {carviz_count}")
+
+                    erbast_count = 0
+                    carviz_count = 0
+
+                    for animal in cell.inhabitants:
+                        if isinstance(animal, Erbast) and not animal.dead:
+                            erbast_count += 1
+                            print(f"Erbast {erbast_count}, ID: {animal.id}, age: {animal.age}, lifetime: {animal.lifetime}, herd: {animal.herd.id}")
+                        elif isinstance(animal, Carviz) and not animal.dead:
+                            carviz_count += 1
+                            print(f"Carviz {carviz_count}, age: {animal.age}, lifetime: {animal.lifetime}, pride: {animal.pride.id}, energy: {animal.energy}")
