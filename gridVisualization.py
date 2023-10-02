@@ -63,7 +63,7 @@ class GridVisualizer:
                 cell = self.grid[i][j]
                 if cell.type == 'ground':
                     density = cell.vegetob.get_density()
-                    self.vegetob_density_grid[i][j] = -100 if cell.vegetob.poisonous else density
+                    self.vegetob_density_grid[i][j] = -density if cell.vegetob.poisonous else density
 
 
                     cell_carviz_count = sum(1 for animal in cell.inhabitants if isinstance(animal, Carviz) and not animal.dead)
@@ -94,7 +94,7 @@ class GridVisualizer:
         recent_erbast_population = self.erbast_population[-window_size:] if len(self.erbast_population) > window_size else self.erbast_population
         recent_carviz_population = self.carviz_population[-window_size:] if len(self.carviz_population) > window_size else self.carviz_population
         max_recent_population = max(max(recent_erbast_population), max(recent_carviz_population))
-        self.axs[0, 0].set_ylim([0, max_recent_population * 3])
+        self.axs[0, 0].set_ylim([0, max_recent_population * 2.5])
 
 
         erbast_energy = sum(animal.energy for row in self.grid for cell in row for animal in cell.inhabitants if isinstance(animal, Erbast) and not animal.dead)

@@ -16,7 +16,7 @@ class Animal:
         # print(f"Aging animal with id {self.id}")
         self.age += 1
         if self.age % 10 == 0 and self.age != 0:
-            self.expend_energy(5) # value to be later determined
+            self.expend_energy(2)
         if self.age > self.lifetime:
             self.die()
 
@@ -169,8 +169,8 @@ class Carviz(Animal):
             return False  
 
         # 2nd condition: Decrease probability if energy is very low
-        if self.energy < 15:
-            probability_of_moving -= 0.4
+        #if self.energy < 15:
+        #    probability_of_moving -= 0.4
 
         # Change the vegetob amount condition
         if not erbast_present:
@@ -242,7 +242,8 @@ class Erbast(Animal):
             if self.age > self.lifetime:
                 self.die()
 
-        self.expend_energy(energy_loss)
+        self.expend_energy(self.cell.vegetob.consume(energy_loss))
+        
 
         print(f"After eating poison: Animal ID: {self.id}, Cell: {self.cell.position}, Energy: {self.energy}, Lifetime: {self.lifetime}")
         
