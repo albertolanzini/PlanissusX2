@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from matplotlib.widgets import Button
 from rich import print
+import sys
+import time
 
 from Constants import *
 from Animals import *
@@ -16,9 +19,9 @@ class GridVisualizer:
         self.vegetob_density_grid = np.zeros((len(grid), len(grid[0])))
         self.animal_presence_grid = np.zeros((len(grid), len(grid[0])))
         self.day_count = 1
-        self.grid_states = [{'grid': grid.copy(), 'day_count': self.day_count}]
-        self.current_state_index = 0
         self.mode = 'initialization'
+        self.interactive = False
+        self.delay = 1
 
         self.im_vegetob_density = None
         self.im_animal_presence = None
@@ -32,7 +35,65 @@ class GridVisualizer:
 
         self.new_animal_type = None
 
+        self.paused = False
+        self.pause_button_ax = self.fig.add_axes([0.8, 0.025, 0.1, 0.04])
+        self.pause_button = Button(self.pause_button_ax, 'Pause/Resume')
+        self.pause_button.on_clicked(self.toggle_pause)
+
+        self.god_mode_button_ax = self.fig.add_axes([0.7, 0.025, 0.1, 0.04])  # Adjust the values to position your button
+        self.god_mode_button = Button(self.god_mode_button_ax, 'God Mode')
+        self.god_mode_button.on_clicked(self.enter_god_mode)
+
+        self.init_mode_button_ax = self.fig.add_axes([0.6, 0.025, 0.1, 0.04])  # Adjust the values to position your button
+        self.init_mode_button = Button(self.init_mode_button_ax, 'Initialization Mode')
+        self.init_mode_button.on_clicked(self.enter_init_mode)
+
+        self.stop_button_ax = self.fig.add_axes([0.1, 0.95, 0.1, 0.04])  # Adjust the values to position your button
+        self.stop_button = Button(self.stop_button_ax, 'Stop Simulation')
+        self.stop_button.on_clicked(self.stop_simulation)
+
+        self.speed_up_button_ax = self.fig.add_axes([0.1, 0.025, 0.1, 0.04])  # Adjust the values to position your button
+        self.speed_up_button = Button(self.speed_up_button_ax, 'Speed Up')
+        self.speed_up_button.on_clicked(self.speed_up)
+
+        self.slow_down_button_ax = self.fig.add_axes([0.2, 0.025, 0.1, 0.04])  # Adjust the values to position your button
+        self.slow_down_button = Button(self.slow_down_button_ax, 'Slow Down')
+        self.slow_down_button.on_clicked(self.slow_down)
+
         self.setup_visuals()
+
+    def speed_up(self, event):
+        print(f"delay before {self.delay}")
+        self.delay = max(self.delay - 0.1, 0.03)  # Decrease delay, but don't let it go below 0.1
+        print(f"delay after {self.delay}")
+
+    def slow_down(self, event):
+        print(f"delay before {self.delay}")
+        self.delay += 0.05
+        print(f"delay after {self.delay}")
+
+    def stop_simulation(self, event):
+        plt.close(self.fig)
+        time.sleep(0.2)
+        sys.exit()
+
+    def toggle_pause(self, event):
+        self.paused = not self.paused
+        if self.paused:
+            print("Simulation paused.")
+        else:
+            self.mode = 'initialization'
+            print("Simulation resumed. Switching back to initialization mode.")
+
+    def enter_god_mode(self, event):
+        if (not self.interactive and self.paused) or self.interactive:
+            self.mode = 'god mode'
+            print("Switching to god mode.")
+
+    def enter_init_mode(self, event):
+        if (not self.interactive and self.paused) or self.interactive:
+            self.mode = 'initialization'
+            print("Switching to initialization mode.")
 
     def get_animal_presence_grid(self):
         animal_presence_grid = np.zeros((len(self.grid), len(self.grid[0])))
@@ -141,62 +202,45 @@ class GridVisualizer:
         self.day_text.set_text('Day: {}'.format(self.day_count))
         plt.draw()
 
-    def visualize(self):
-        plt.show()
+    def visualize(self, delay, interactive):
+        self.interactive = interactive
+        self.speed_up_button_ax.set_visible(not interactive)
+        self.slow_down_button_ax.set_visible(not interactive)
+        self.pause_button_ax.set_visible(not interactive)
+        self.delay = delay
+        if interactive:
+            plt.show()
+        else:
+            while self.day_count <= NUM_DAYS:
+                if not self.paused:
+                    daily_actions(self.grid)
+                    self.update_and_visualize()
+                    self.day_count += 1
+                    plt.pause(self.delay)
+                else:
+                    plt.pause(0.2)  # Wait for a short period before checking the paused state again
+            plt.show()
+                
+
 
     def on_key(self, event):
+        if self.mode == 'initialization' and not self.interactive:
+            return
 
         # print(f"Key pressed: {event.key}")
 
         if self.mode == 'initialization':
+
             if event.key == ' ':
-                
+        
                 if self.day_count <= NUM_DAYS:
-                    
+                        
                     daily_actions(self.grid)
-                    
+                        
                     self.update_and_visualize()
                     self.day_count += 1
-                    self.grid_states.append({'grid': self.grid.copy(), 'day_count': self.day_count})
-                    self.current_state_index = len(self.grid_states) - 1
-
-            elif event.key == 'n':
-                self.mode = 'navigation'
-                print("CAREFUL - Moving to Navigation mode")
-
-            elif event.key == 'y':
-                self.mode = 'god mode'
-                print("""
-                [bold red]CAREFUL - Moving to God Mode[/bold red]
-                You can spawn herds in ground cells by pressing h and clicking on the cell you want them to spawn in
-                You can spawn prides doing the same thing.
-                """)
-
-        elif self.mode == 'navigation':
-            if event.key == 'right':
-                if self.current_state_index < len(self.grid_states) - 1:
-                    self.current_state_index += 1
-                    self.load_grid_state(self.current_state_index)
-
-            elif event.key == 'left':
-                if self.current_state_index > 0:
-                    self.current_state_index -= 1
-                    self.load_grid_state(self.current_state_index)
-
-            elif event.key == 'i':
-                if self.current_state_index == len(self.grid_states) - 1:
-                    print("[bold red]CAREFUL - Moving to initialization mode[/bold red]")
-                    self.mode = 'initialization'
-                else:
-                    print("""
-                    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     
-                    Move to the lastly stored state to move to initialization mode
-                    
-                    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    """)
-        
-        elif self.mode == 'god mode':
+        elif (self.mode == 'god mode' and self.paused and not self.interactive) or (self.mode == 'god mode' and not self.paused and self.interactive):
             if event.key == 'h':
                 self.new_animal_type = 'herd'
                 print("Ready to add a new herd. Click on a cell.")
@@ -206,15 +250,6 @@ class GridVisualizer:
             elif event.key == 'i':
                 self.mode = 'initialization'
                 print("Switching back to initialization mode.")
-            elif event.key == 'n':
-                self.mode = 'navigation'
-                print("Switching back to navigation mode.")
-
-
-    def load_grid_state(self, index):
-        self.grid = self.grid_states[index]['grid'].copy()
-        self.day_count = self.grid_states[index]['day_count']
-        self.update_and_visualize()
 
     def on_click(self, event):
         if event.inaxes == self.axs[0, 1] or event.inaxes == self.axs[1, 1]:

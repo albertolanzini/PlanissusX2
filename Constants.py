@@ -1,12 +1,7 @@
-nCarviz = 5000
-nErbast = 5000
-numCellsX = 20
-numCellsY = 20
-MAX_LIFETIME = 100
-MAX_HERDS = 100
-MAX_PRIDES = 100
+nCarviz = 50000
+nErbast = 50000
+numCellsX = 10
+numCellsY = 10
 MAX_SIZE = 10
 NUM_DAYS = 2000
-MAX_HERDS = 100
-MAX_PRIDES = 100
 MOVE_PROBABILITY = 0.2

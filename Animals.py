@@ -167,10 +167,6 @@ class Carviz(Animal):
         if erbast_present:
             return False  
 
-        # 2nd condition: Decrease probability if energy is very low
-        #if self.energy < 15:
-        #    probability_of_moving -= 0.4
-
         # Change the vegetob amount condition
         if not erbast_present:
             probability_of_moving += 0.4
