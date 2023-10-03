@@ -1,3 +1,5 @@
+import tkinter as tk
+
 from Grid import *
 from Vegetob import Vegetob
 from Constants import *
@@ -5,7 +7,13 @@ from gridVisualization import *
 from Animals import *
 from dailyOperations import *
 from Struggle import *
+from GUI import *
 
+def create_gui(visualizer):
+    app = wx.App(False)
+    frame = MainFrame(visualizer)
+    frame.Show()
+    app.MainLoop()
 
 def daily_actions(grid):
     """
@@ -135,8 +143,9 @@ def main():
     groupAnimalsStart(grid1)
 
     visualizer = GridVisualizer(grid1)
+    pub.sendMessage("get.visualizer", visualizer=visualizer)
 
-    visualizer.visualize()
+    create_gui(visualizer)
 
 
 if __name__ == '__main__':

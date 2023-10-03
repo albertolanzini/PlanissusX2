@@ -141,8 +141,20 @@ class GridVisualizer:
         self.day_text.set_text('Day: {}'.format(self.day_count))
         plt.draw()
 
-    def visualize(self):
-        plt.show()
+    def visualize(self, delay, interactive):
+        if interactive:
+            plt.show()
+        else:
+            for _ in range(NUM_DAYS):
+                daily_actions(self.grid)
+                self.update_and_visualize()
+                self.day_count += 1
+                self.grid_states.append({'grid': self.grid.copy(), 'day_count': self.day_count})
+                self.current_state_index = len(self.grid_states) - 1
+                plt.pause(delay)
+            plt.show()
+                
+
 
     def on_key(self, event):
 
