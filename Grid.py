@@ -39,7 +39,7 @@ class Cells:
             new_poison_cell = random.choice(neighboring_cells)
             if random.random() < 0.03:
                 if random.random() < 0.10:
-                    print(f"Cell at position {new_poison_cell.position} has been infected by cell {self.position}")
+                    # print(f"Cell at position {new_poison_cell.position} has been infected by cell {self.position}")
                     new_poison_cell.vegetob.poisonous = True
 
 def create_grid(numcellsx, numcellsy):
