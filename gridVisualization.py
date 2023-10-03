@@ -206,6 +206,7 @@ class GridVisualizer:
         self.interactive = interactive
         self.speed_up_button_ax.set_visible(not interactive)
         self.slow_down_button_ax.set_visible(not interactive)
+        self.pause_button_ax.set_visible(not interactive)
         self.delay = delay
         if interactive:
             plt.show()

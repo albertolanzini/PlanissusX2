@@ -159,7 +159,7 @@ class Herd(AnimalGroup):
 
 
 class Pride(AnimalGroup):
-    id_counter = MAX_HERDS
+    id_counter = 0
 
     def __init__(self, max_size=MAX_SIZE):
         super().__init__(max_size)
