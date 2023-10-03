@@ -1,5 +1,3 @@
-import tkinter as tk
-
 from Grid import *
 from Vegetob import Vegetob
 from Constants import *
@@ -8,6 +6,7 @@ from Animals import *
 from dailyOperations import *
 from Struggle import *
 from GUI import *
+from utils import count_ground_cells
 
 def create_gui(visualizer):
     app = wx.App(False)
@@ -19,9 +18,12 @@ def daily_actions(grid):
     """
     This function performs the daily actions for each cell in the grid.
     It iterates over each cell in the grid and performs the following actions:
-    - If the cell type is 'ground', it triggers the growth of Vegetob in the cell.
-    - It ages all the herds and prides in the cell.
+    - If the cell type is 'ground', it triggers the growth of Vegetob in the cell and the spreading of the poisonous vegetob.
     - It then triggers the movement of herds in the cell.
+    - It then triggers the grazing of the non-moving herds.
+    - It then triggers the merging of the herds and the merging/fighting of the prides.
+    - It then triggers the hunt.
+    - Finally, it ages all the herds and prides in the cell.
     """
 
     # 1 step - Growing
@@ -117,14 +119,6 @@ def daily_actions(grid):
                 for animal in list(cell.inhabitants):
                     if animal.dead:
                         cell.inhabitants.remove(animal)
-
-def count_ground_cells(grid):
-    count = 0
-    for row in grid:
-        for cell in row:
-            if cell.type == 'ground':
-                count += 1
-    return count
 
 def main():
     # Grid creations

@@ -12,6 +12,7 @@ class Vegetob:
 
     def consume(self, amount_needed):
         # Amount needed is the amount of Vegetob the Erbast needs to reach maximum energy
-        consumed_density = min(amount_needed, self.density)
+        # min function necessary to ensure density does not become negative
+        consumed_density = min(amount_needed, self.density) 
         self.density -= consumed_density
         return consumed_density

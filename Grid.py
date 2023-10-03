@@ -38,7 +38,7 @@ class Cells:
             neighboring_cells = get_neighboring_cells(self.grid, self, radius=1)
             new_poison_cell = random.choice(neighboring_cells)
             if random.random() < 0.03:
-                if random.random() < 0.10:
+                if random.random() < 0.14:
                     # print(f"Cell at position {new_poison_cell.position} has been infected by cell {self.position}")
                     new_poison_cell.vegetob.poisonous = True
 

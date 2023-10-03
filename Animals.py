@@ -13,7 +13,6 @@ class Animal:
         self.dead = False
 
     def ageing(self):
-        # print(f"Aging animal with id {self.id}")
         self.age += 1
         if self.age % 10 == 0 and self.age != 0:
             self.expend_energy(2)
@@ -28,7 +27,6 @@ class Animal:
 
     def die(self):
         if self.should_spawn_offspring():
-            # print(f"Erbast {self.id} has spawned two erbasts")
             self.spawn_offspring()
         self.leave_group()
         self.dead = True
@@ -70,32 +68,28 @@ class Animal:
         )
 
         if isinstance(self, Erbast):
-            # print(f"Erbast {self.id} spawned two offsprings")
-            # print(f"Before adding, herd members: {[erbast.id for erbast in self.herd.members]}")
             if self.herd.getSize < self.herd.max_size:
                 offspring1.join_group(self.herd)
                 self.cell.inhabitants.add(offspring1)
             if self.herd.getSize < self.herd.max_size:
                 offspring2.join_group(self.herd)
                 self.cell.inhabitants.add(offspring2)
-            # print(f"Spawned offspring 1 with ID: {offspring1.id}, energy: {offspring1.energy}, lifetime: {offspring1.lifetime}, herd: {offspring1.herd.id}")
-            # print(f"Spawned offspring 2 with ID: {offspring2.id}, energy: {offspring2.energy}, lifetime: {offspring2.lifetime}, herd: {offspring2.herd.id}")
-            # print(f"After adding, herd members: {[erbast.id for erbast in self.herd.members]}")
+            
         elif isinstance(self, Carviz):
-            # print(f"Carviz {self.id} spawned two offsprings")
-            # print(f"Before adding, pride members: {[carviz.id for carviz in self.pride.members]}")
             if self.pride.getSize < self.pride.max_size:
                 offspring1.join_group(self.pride)
                 self.cell.inhabitants.add(offspring1)
             if self.pride.getSize < self.pride.max_size:
                 offspring2.join_group(self.pride)
                 self.cell.inhabitants.add(offspring2)
-            # print(f"After adding, pride members: {[carviz.id for carviz in self.pride.members]}")
 
-        # print(f"Before adding, cell inhabitants: {[animal.id for animal in self.cell.inhabitants]}")
-        # print(f"After adding, cell inhabitants: {[animal.id for animal in self.cell.inhabitants]}")
 
     def should_spawn_offspring(self):
+        """
+        Determines whether the animal should spawn offspring.
+        If the energy level is above 0 (otherwise the animal is too weak to spawn an offspring), 
+        the method calculates a probability based on the energy level and the age of the animal. 
+        """
         if self.energy <= 0:
             return False
 
@@ -107,7 +101,7 @@ class Animal:
 
         probability = energy_factor * age_factor
 
-        # Increase the probability for Carviz animals
+        # Increase the probability to ensure longevity of the simulation
         probability *= 1.5
 
         return random.random() < probability
@@ -129,6 +123,11 @@ class Carviz(Animal):
             self.join_pride(group)
 
     def join_pride(self, pride):
+        """
+        If the animal is already part of a group, remove it from the group, then add it to a new group.
+        Add it to the "target group" if the group.add_member(self) method returns a True value, otherwise
+        create a new group such that the animal can join a different group.
+        """
         if self.pride is not None:
             self.pride.remove_member(self)
         pride.cell = self.cell
@@ -147,8 +146,6 @@ class Carviz(Animal):
                 pride.cell.prides.append(pride)
 
     def leave_pride(self):
-        """Make sure to add the animal to another Pride after leaving the group. It could create varying issues to let
-        the animals stay without a group."""
         if self.pride:
             self.pride.remove_member(self)
         self.pride = None
@@ -159,7 +156,6 @@ class Carviz(Animal):
 
     def should_move(self):
         probability_of_moving = 0.2
-
         
         erbast_present = any(isinstance(animal, Erbast) and not animal.dead for animal in self.cell.inhabitants)
 
@@ -167,10 +163,12 @@ class Carviz(Animal):
         if erbast_present:
             return False  
 
-        # Change the vegetob amount condition
+        # Increase the probability if no Erbast is in the cell
         if not erbast_present:
             probability_of_moving += 0.4
 
+        # Increase the probability if the vegetob density is very low (unlikely that an Erbast will come),
+        # decrease it if the vegetob density is very high (likely that an Erbast will come in the cell).
         if self.cell.get_vegetob_amount() < 10:
             probability_of_moving += 0.2
         elif self.cell.get_vegetob_amount() > 75:
@@ -199,6 +197,11 @@ class Erbast(Animal):
             self.join_herd(group)
 
     def join_herd(self, herd):
+        """
+        If the animal is already part of a group, remove it from the group, then add it to a new group.
+        Add it to the "target group" if the group.add_member(self) method returns a True value, otherwise
+        create a new group such that the animal can join a different group.
+        """
         if self.herd is not None:
             self.herd.remove_member(self)
         herd.cell = self.cell
@@ -228,31 +231,26 @@ class Erbast(Animal):
     
     def eat_poison(self, poison_density):
         # Decrease energy and lifetime based on the density of the poison
-        # print(f"Before eating poison: Animal ID: {self.id}, Cell: {self.cell.position}, Energy: {self.energy}, Lifetime: {self.lifetime}")
-
         energy_loss = poison_density * 0.2
         
-        if poison_density > 15:
+        # In this simulation poisonous vegetob can cause long-term damage shortening the lifetime
+        if poison_density > 7:
             lifetime_loss = 1
             if self.age > self.lifetime:
                 self.die()
 
         self.expend_energy(self.cell.vegetob.consume(energy_loss))
         
-
-        # print(f"After eating poison: Animal ID: {self.id}, Cell: {self.cell.position}, Energy: {self.energy}, Lifetime: {self.lifetime}")
         
-        
-
     def leave_herd(self):
-        """Make sure to add the animal to another Pride after leaving the group. It could create varying issues to let
-        the animals stay without a group."""
         if self.herd:
             self.herd.remove_member(self)
         self.herd = None
 
+
     def leave_group(self):
         self.leave_herd()
+
 
     def should_move(self):
         probability_of_moving = 0.2
@@ -267,6 +265,7 @@ class Erbast(Animal):
         if self.energy < 15:
             probability_of_moving -= 0.4
 
+        # 3rd condition: Increase probability if vegetob amount is low
         if self.cell.get_vegetob_amount() < 20:
             probability_of_moving += 0.3
 

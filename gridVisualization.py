@@ -40,37 +40,34 @@ class GridVisualizer:
         self.pause_button = Button(self.pause_button_ax, 'Pause/Resume')
         self.pause_button.on_clicked(self.toggle_pause)
 
-        self.god_mode_button_ax = self.fig.add_axes([0.7, 0.025, 0.1, 0.04])  # Adjust the values to position your button
+        self.god_mode_button_ax = self.fig.add_axes([0.7, 0.025, 0.1, 0.04]) 
         self.god_mode_button = Button(self.god_mode_button_ax, 'God Mode')
         self.god_mode_button.on_clicked(self.enter_god_mode)
 
-        self.init_mode_button_ax = self.fig.add_axes([0.6, 0.025, 0.1, 0.04])  # Adjust the values to position your button
+        self.init_mode_button_ax = self.fig.add_axes([0.6, 0.025, 0.1, 0.04]) 
         self.init_mode_button = Button(self.init_mode_button_ax, 'Initialization Mode')
         self.init_mode_button.on_clicked(self.enter_init_mode)
 
-        self.stop_button_ax = self.fig.add_axes([0.1, 0.95, 0.1, 0.04])  # Adjust the values to position your button
+        self.stop_button_ax = self.fig.add_axes([0.1, 0.95, 0.1, 0.04])  
         self.stop_button = Button(self.stop_button_ax, 'Stop Simulation')
         self.stop_button.on_clicked(self.stop_simulation)
 
-        self.speed_up_button_ax = self.fig.add_axes([0.1, 0.025, 0.1, 0.04])  # Adjust the values to position your button
+        self.speed_up_button_ax = self.fig.add_axes([0.1, 0.025, 0.1, 0.04])  
         self.speed_up_button = Button(self.speed_up_button_ax, 'Speed Up')
         self.speed_up_button.on_clicked(self.speed_up)
 
-        self.slow_down_button_ax = self.fig.add_axes([0.2, 0.025, 0.1, 0.04])  # Adjust the values to position your button
+        self.slow_down_button_ax = self.fig.add_axes([0.2, 0.025, 0.1, 0.04]) 
         self.slow_down_button = Button(self.slow_down_button_ax, 'Slow Down')
         self.slow_down_button.on_clicked(self.slow_down)
 
         self.setup_visuals()
 
     def speed_up(self, event):
-        print(f"delay before {self.delay}")
-        self.delay = max(self.delay - 0.1, 0.03)  # Decrease delay, but don't let it go below 0.1
-        print(f"delay after {self.delay}")
-
+        # Decrease delay, but don't let it go below 0.1
+        self.delay = max(self.delay - 0.1, 0.03) 
+    
     def slow_down(self, event):
-        print(f"delay before {self.delay}")
         self.delay += 0.05
-        print(f"delay after {self.delay}")
 
     def stop_simulation(self, event):
         plt.close(self.fig)
@@ -218,7 +215,8 @@ class GridVisualizer:
                     self.day_count += 1
                     plt.pause(self.delay)
                 else:
-                    plt.pause(0.2)  # Wait for a short period before checking the paused state again
+                    # Wait for a short period before checking the paused state again
+                    plt.pause(0.2)
             plt.show()
                 
 
@@ -226,8 +224,6 @@ class GridVisualizer:
     def on_key(self, event):
         if self.mode == 'initialization' and not self.interactive:
             return
-
-        # print(f"Key pressed: {event.key}")
 
         if self.mode == 'initialization':
 
@@ -257,16 +253,14 @@ class GridVisualizer:
             j = int(event.xdata + 0.5)
             cell = self.grid[i][j]
 
-            # print(f"Click at: {cell.position}")
 
             if self.mode == 'god mode':
 
                 print("In God Mode")
 
-                # print(f"cell of type {cell.type}")
-
                 if cell.type == 'ground':
-                    num_animals = np.random.randint(1, MAX_SIZE)  # Generate a random number of animals
+                    # Generate a random number of animals
+                    num_animals = np.random.randint(1, MAX_SIZE)
 
                     if self.new_animal_type == 'herd':
                         actual_n = 0
@@ -274,6 +268,7 @@ class GridVisualizer:
                         new_herd.setThreshold(0)
                         new_herd.cell = cell
                         for i in range(num_animals):
+                            # Make sure the newly generated animals do not exceed the max number per cell
                             if cell.count_erbast() >= 20:
                                 if not new_herd.members and new_herd in cell.herds:
                                     cell.herds.remove(new_herd)
@@ -293,10 +288,11 @@ class GridVisualizer:
 
                     elif self.new_animal_type == 'pride':
                         actual_n = 0
-                        new_pride = Pride()  # Assuming Pride takes the number of animals as an argument
+                        new_pride = Pride()
                         new_pride.setThreshold(0)
                         new_pride.cell = cell
                         for i in range(num_animals):
+                            # Make sure the newly generated animals do not exceed the max number per cell
                             if cell.count_carviz() >= 20:
                                 if not new_pride.members:
                                     cell.prides.remove(new_pride)

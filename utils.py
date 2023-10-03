@@ -10,3 +10,11 @@ def get_neighboring_cells(grid, cell, radius=2):
             if (i, j) != (current_x, current_y) and grid[i][j].type != 'water':
                 neighboring_cells.append(grid[i][j])
     return neighboring_cells
+
+def count_ground_cells(grid):
+    count = 0
+    for row in grid:
+        for cell in row:
+            if cell.type == 'ground':
+                count += 1
+    return count

@@ -25,28 +25,6 @@ def groupAnimalsStart(grid):
                     carviz.join_group(pride)
 
 
-def print_prides_and_herds(grid):
-    prides = {}
-    herds = {}
-    for i, row in enumerate(grid):
-        for j, cell in enumerate(row):
-            if cell.inhabitants:
-                for animal in cell.inhabitants:
-                    if isinstance(animal, Carviz):
-                        if animal.pride is not None and animal.pride not in prides:
-                            prides[animal.pride] = (i, j)
-                    elif isinstance(animal, Erbast):
-                        if animal.herd is not None and animal.herd not in herds:
-                            herds[animal.herd] = (i, j)
-
-    print("Prides:")
-    for pride, location in prides.items():
-        print(f"Pride ID: {pride.id}, Members: {len(pride.members)}, Cell: {location}")
-
-    print("\nHerds:")
-    for herd, location in herds.items():
-        print(f"Herd ID: {herd.id}, Members: {len(herd.members)}, Cell: {location}")
-
 
 
 

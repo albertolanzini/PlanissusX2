@@ -2,7 +2,10 @@ from Groups import *
 from Animals import *
 import random
 
+
 def merge_herds(cell):
+    # We merge the herds by selecting the one with the lowest threshold and letting all the other members
+    # join that herd, to ensure all the erbasts are able to join and be in the same group.
     herds_in_cell = list(cell.herds)
 
     if len(herds_in_cell) <= 1:
@@ -16,11 +19,11 @@ def merge_herds(cell):
                 erbast.join_group(min_threshold_herd)
             if not herd.members and herd in cell.herds:
                 cell.herds.remove(herd)
+    
 
 def merge_prides(pride1, pride2):
-    # print(f"Merging Pride {pride1.id} and Pride {pride2.id}")
-    # print(f"Pride {pride1.id} threshold: {pride1.threshold}")
-    # print(f"Pride {pride2.id} threshold: {pride2.threshold}")
+    # We keep the pride with the lower threshold as we are sure it will welcome all the members
+    # of the other pride
 
     if pride1.threshold < pride2.threshold:
         keep_pride, remove_pride = pride1, pride2
@@ -30,41 +33,31 @@ def merge_prides(pride1, pride2):
     if keep_pride is remove_pride:
         return
 
-    # print(f"Keeping Pride {keep_pride.id}, removing Pride {remove_pride.id}")
-
-    remove_members = remove_pride.members.copy()  # Create a copy of remove_pride.members
+    remove_members = remove_pride.members.copy()
     for member in remove_members:
         member.join_group(keep_pride)
 
-    # print(f"Pride {keep_pride.id} members after merge: {[member.id for member in keep_pride.members]}")
-
     keep_pride.cell.prides.remove(remove_pride)
 
+
 def fight_prides(pride1, pride2):
-    # print(f"Pride 1 members before fight: {[member.id for member in pride1.members]}")
-    # print(f"Pride 2 members before fight: {[member.id for member in pride2.members]}")
 
     total_energy_pride1 = sum(member.energy for member in pride1.members)
     total_energy_pride2 = sum(member.energy for member in pride2.members)
 
-    # print(f"Total energy of Pride 1: {total_energy_pride1}")
-    # print(f"Total energy of Pride 2: {total_energy_pride2}")
-
+    # We calculate the probability of winning with the total energy of both prides
     winning_probability_pride1 = total_energy_pride1 / (total_energy_pride1 + total_energy_pride2)
-
-    # print(f"Winning probability of Pride 1: {winning_probability_pride1}")
 
     if random.random() < winning_probability_pride1:
         winner, loser = pride1, pride2
     else:
         winner, loser = pride2, pride1
 
-    # social_attitude_increment = sum(member.energy for member in loser.members) / 100
-    # print(f"Winner: {winner.id}")
-    # print(f"Loser: {loser.id}")
     scaling_factor = 0.5
     energy_expenditure = (loser.getSize / winner.getSize) * scaling_factor
 
+    # The fight is a last-blood fight: that means all the members of the losing group die after the fight,
+    # while all the members of the winning group lose some energy due to the fight.
     for member in loser.members:
         loser.cell.inhabitants.remove(member)
 
@@ -73,43 +66,27 @@ def fight_prides(pride1, pride2):
 
     winner.cell.prides.remove(loser)
 
-    # print(f"Prides in cell after fight: {[pride.id for pride in winner.cell.prides]}")
-
-    # print(f"Pride 1 members after fight: {[member.id for member in pride1.members]}")
-    # print(f"Pride 2 members after fight: {[member.id for member in pride2.members]}")
-
-    
 
 def evaluate_and_fight_prides(cell):
+    # Evaluate if the prides should join or fight.
     prides_in_cell = cell.prides
 
     if len(prides_in_cell) <= 1:
         return
 
-    # print(f"Initial prides in cell: {[pride.id for pride in prides_in_cell]}")
-
-    for pride in prides_in_cell:
-    
-        # print(f"Pride ID: {pride.id}")
-        # print(f"Pride members: {[member.id for member in pride.members]}")
-        # print(f"Members' social attitudes: {[member.social_attitude for member in pride.members]}")
-        
-        pass
-
     while len(cell.prides) > 1:
         pride1 = cell.prides[0]
         pride2 = cell.prides[1]
 
-        # print(f"Evaluating Pride {pride1.id} and Pride {pride2.id}")
 
         if pride1.should_join(pride2):
-            # print(f"Pride {pride1.id} and Pride {pride2.id} should join")
+
             merge_prides(pride1, pride2)
+
         else:
-            # print(f"Pride {pride1.id} and Pride {pride2.id} should fight")
+            
             fight_prides(pride1, pride2)
 
-    # print(f"Final prides in cell: {[pride.id for pride in prides_in_cell]}")
 
         
 
