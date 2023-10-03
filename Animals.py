@@ -232,7 +232,7 @@ class Erbast(Animal):
     
     def eat_poison(self, poison_density):
         # Decrease energy and lifetime based on the density of the poison
-        print(f"Before eating poison: Animal ID: {self.id}, Cell: {self.cell.position}, Energy: {self.energy}, Lifetime: {self.lifetime}")
+        # print(f"Before eating poison: Animal ID: {self.id}, Cell: {self.cell.position}, Energy: {self.energy}, Lifetime: {self.lifetime}")
 
         energy_loss = poison_density * 0.2
         
@@ -244,7 +244,7 @@ class Erbast(Animal):
         self.expend_energy(self.cell.vegetob.consume(energy_loss))
         
 
-        print(f"After eating poison: Animal ID: {self.id}, Cell: {self.cell.position}, Energy: {self.energy}, Lifetime: {self.lifetime}")
+        # print(f"After eating poison: Animal ID: {self.id}, Cell: {self.cell.position}, Energy: {self.energy}, Lifetime: {self.lifetime}")
         
         
 

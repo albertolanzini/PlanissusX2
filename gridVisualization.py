@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from rich import print
 
 from Constants import *
 from Animals import *
@@ -145,7 +146,7 @@ class GridVisualizer:
 
     def on_key(self, event):
 
-        print(f"Key pressed: {event.key}")
+        # print(f"Key pressed: {event.key}")
 
         if self.mode == 'initialization':
             if event.key == ' ':
@@ -166,7 +167,7 @@ class GridVisualizer:
             elif event.key == 'y':
                 self.mode = 'god mode'
                 print("""
-                CAREFUL - Moving to God Mode
+                [bold red]CAREFUL - Moving to God Mode[/bold red]
                 You can spawn herds in ground cells by pressing h and clicking on the cell you want them to spawn in
                 You can spawn prides doing the same thing.
                 """)
@@ -184,7 +185,7 @@ class GridVisualizer:
 
             elif event.key == 'i':
                 if self.current_state_index == len(self.grid_states) - 1:
-                    print("CAREFUL - Moving to initialization mode")
+                    print("[bold red]CAREFUL - Moving to initialization mode[/bold red]")
                     self.mode = 'initialization'
                 else:
                     print("""
@@ -221,13 +222,13 @@ class GridVisualizer:
             j = int(event.xdata + 0.5)
             cell = self.grid[i][j]
 
-            print(f"Click at: {cell.position}")
+            # print(f"Click at: {cell.position}")
 
             if self.mode == 'god mode':
 
                 print("In God Mode")
 
-                print(f"cell of type {cell.type}")
+                # print(f"cell of type {cell.type}")
 
                 if cell.type == 'ground':
                     num_animals = np.random.randint(1, MAX_SIZE)  # Generate a random number of animals
@@ -239,7 +240,7 @@ class GridVisualizer:
                         new_herd.cell = cell
                         for i in range(num_animals):
                             if cell.count_erbast() >= 20:
-                                if not new_herd.members:
+                                if not new_herd.members and new_herd in cell.herds:
                                     cell.herds.remove(new_herd)
                                 return
                             
@@ -253,7 +254,7 @@ class GridVisualizer:
 
                             cell.inhabitants.add(new_animal)
 
-                        print(f"Added a new herd with {num_animals} Erbasts at ({i}, {j})")
+                        print(f"[bold green]Added a new herd with {num_animals} Erbasts at ({i}, {j})[/bold green]")
 
                     elif self.new_animal_type == 'pride':
                         actual_n = 0
@@ -276,10 +277,10 @@ class GridVisualizer:
 
                             actual_n += 1
                         
-                        print(f"Added a new pride with {actual_n} Carvizs at ({i}, {j})")
-                        
+                        print(f"[bold green]Added a new pride with {actual_n} Carvizs at ({i}, {j})[/bold green]")
+
                 else:
-                    print("In God Mode you can only add Animals to a Ground cells, not to water cells")
+                    print("In God Mode [bold]you can only add Animals to a Ground cell[/bold], not to a water cell")
                 
             elif self.mode == 'initialization':
 
