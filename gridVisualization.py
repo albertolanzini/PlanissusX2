@@ -25,7 +25,6 @@ class GridVisualizer:
 
         self.im_vegetob_density = None
         self.im_animal_presence = None
-        self.day_text = None
 
         self.erbast_population = []
         self.carviz_population = []
@@ -128,8 +127,6 @@ class GridVisualizer:
         self.fig.colorbar(self.im_vegetob_density, ax=self.axs[0, 1], orientation='vertical')
         self.fig.colorbar(self.im_animal_presence, ax=self.axs[1, 1], orientation='vertical')
 
-        self.day_text = self.axs[0, 0].text(0.45, 1.075, '', transform=self.axs[0, 0].transAxes)
-
         self.fig.canvas.mpl_connect('key_press_event', self.on_key)
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
 
@@ -196,7 +193,6 @@ class GridVisualizer:
         self.im_animal_presence.set_data(self.animal_presence_grid)
         self.axs[1, 1].set_title('Animal Presence')
 
-        self.day_text.set_text('Day: {}'.format(self.day_count))
         plt.draw()
 
     def visualize(self, delay, interactive):
