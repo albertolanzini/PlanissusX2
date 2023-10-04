@@ -38,7 +38,7 @@ class Cells:
             neighboring_cells = get_neighboring_cells(self.grid, self, radius=1)
             new_poison_cell = random.choice(neighboring_cells)
             if random.random() < 0.03:
-                if random.random() < 0.14:
+                if random.random() < 0.15:
                     # print(f"Cell at position {new_poison_cell.position} has been infected by cell {self.position}")
                     new_poison_cell.vegetob.poisonous = True
 
@@ -61,7 +61,7 @@ def create_grid(numcellsx, numcellsy):
                     vegetob_density = random.randint(60, 80)
                     vegetob = Vegetob(vegetob_density)
                     # The vegetob will be poisonous, but only 1% of the time
-                    vegetob.poisonous = np.random.random() < 0.01
+                    vegetob.poisonous = np.random.random() < 0.015
                     grid[i][j] = Cells('ground', vegetob, grid=grid)
                     grid[i][j].position = (i, j)
 

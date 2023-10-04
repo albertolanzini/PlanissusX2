@@ -11,6 +11,8 @@ from Animals import *
 from main import daily_actions
 from dailyOperations import *
 
+def normalize_rgb(rgb):
+    return tuple(color/255 for color in rgb)
 
 class GridVisualizer:
     def __init__(self, grid):
@@ -37,33 +39,39 @@ class GridVisualizer:
         self.paused = False
         self.pause_button_ax = self.fig.add_axes([0.8, 0.025, 0.1, 0.04])
         self.pause_button = Button(self.pause_button_ax, 'Pause/Resume')
+        self.pause_button.color = normalize_rgb((173, 216, 230))
         self.pause_button.on_clicked(self.toggle_pause)
 
         self.god_mode_button_ax = self.fig.add_axes([0.7, 0.025, 0.1, 0.04]) 
         self.god_mode_button = Button(self.god_mode_button_ax, 'God Mode')
+        self.god_mode_button.color = normalize_rgb((255, 255, 0))
         self.god_mode_button.on_clicked(self.enter_god_mode)
 
         self.init_mode_button_ax = self.fig.add_axes([0.6, 0.025, 0.1, 0.04]) 
         self.init_mode_button = Button(self.init_mode_button_ax, 'Initialization Mode')
+        self.init_mode_button.color = normalize_rgb((0, 175, 0))
         self.init_mode_button.on_clicked(self.enter_init_mode)
 
         self.stop_button_ax = self.fig.add_axes([0.1, 0.95, 0.1, 0.04])  
         self.stop_button = Button(self.stop_button_ax, 'Stop Simulation')
+        self.stop_button.color = normalize_rgb((242, 24, 90))
         self.stop_button.on_clicked(self.stop_simulation)
 
         self.speed_up_button_ax = self.fig.add_axes([0.1, 0.025, 0.1, 0.04])  
         self.speed_up_button = Button(self.speed_up_button_ax, 'Speed Up')
+        self.speed_up_button.color = normalize_rgb((7, 232, 116))
         self.speed_up_button.on_clicked(self.speed_up)
 
         self.slow_down_button_ax = self.fig.add_axes([0.2, 0.025, 0.1, 0.04]) 
         self.slow_down_button = Button(self.slow_down_button_ax, 'Slow Down')
+        self.slow_down_button.color = normalize_rgb((255, 80, 80))
         self.slow_down_button.on_clicked(self.slow_down)
 
         self.setup_visuals()
 
     def speed_up(self, event):
-        # Decrease delay, but don't let it go below 0.1
-        self.delay = max(self.delay - 0.1, 0.03) 
+        # Decrease delay, but don't let it go below 0.02
+        self.delay = max(self.delay - 0.1, 0.02) 
     
     def slow_down(self, event):
         self.delay += 0.05
@@ -76,20 +84,23 @@ class GridVisualizer:
     def toggle_pause(self, event):
         self.paused = not self.paused
         if self.paused:
-            print("Simulation paused.")
+            print("[bold blue]Simulation paused.[/bold blue]")
         else:
             self.mode = 'initialization'
-            print("Simulation resumed. Switching back to initialization mode.")
+            print("[bold blue]Simulation resumed. Switching back to initialization mode.[/bold blue]")
 
     def enter_god_mode(self, event):
         if (not self.interactive and self.paused) or self.interactive:
             self.mode = 'god mode'
-            print("Switching to god mode.")
+            print("""[bold yellow]Switching to god mode.[/bold yellow]
+        [bold]Generate herds[/bold] by pressing [bold]h[/bold] and clicking on the desidered cell.
+        [bold]Generate prides[/bold] by pressing [bold]p[/bold] and clicking on the desidered cell.
+      """)
 
     def enter_init_mode(self, event):
         if (not self.interactive and self.paused) or self.interactive:
             self.mode = 'initialization'
-            print("Switching to initialization mode.")
+            print("[bold green]Switching to initialization mode.[/bold green]")
 
     def get_animal_presence_grid(self):
         animal_presence_grid = np.zeros((len(self.grid), len(self.grid[0])))
@@ -252,8 +263,6 @@ class GridVisualizer:
 
             if self.mode == 'god mode':
 
-                print("In God Mode")
-
                 if cell.type == 'ground':
                     # Generate a random number of animals
                     num_animals = np.random.randint(1, MAX_SIZE)
@@ -304,10 +313,10 @@ class GridVisualizer:
 
                             actual_n += 1
                         
-                        print(f"[bold green]Added a new pride with {actual_n} Carvizs at ({i}, {j})[/bold green]")
+                        print(f"[bold yellow]Added a new pride with {actual_n} Carvizs at ({i}, {j})[/bold yellow]")
 
                 else:
-                    print("In God Mode [bold]you can only add Animals to a Ground cell[/bold], not to a water cell")
+                    print("In God Mode [bold red]you can only add Animals to a Ground cell[/bold red], not to a water cell")
                 
             elif self.mode == 'initialization':
 
