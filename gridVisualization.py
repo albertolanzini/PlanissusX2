@@ -136,7 +136,8 @@ class GridVisualizer:
         self.axs[1, 1].set_title('Animal Presence')
 
         self.fig.colorbar(self.im_vegetob_density, ax=self.axs[0, 1], orientation='vertical')
-        self.fig.colorbar(self.im_animal_presence, ax=self.axs[1, 1], orientation='vertical')
+        cbar = self.fig.colorbar(self.im_animal_presence, ax=self.axs[1, 1], ticks=[0, 1, 2], orientation='vertical')
+        cbar.ax.set_yticklabels(['0', '1', '2'])
 
         self.fig.canvas.mpl_connect('key_press_event', self.on_key)
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)

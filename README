@@ -31,4 +31,10 @@ During the simulation, directions on how to use the god mode, or information abo
 user is in, as well as the information about the cells the user is clicking on, or about the herds/prides
 they are generating while in god mode, will be printed out through the terminal. Keep a look on that!
 
+The plots shown are:
+1. Vegetob density plot that shows the vegetation density within a range 0-100.
+2. Animal presence plot that shows the Erbast to Carviz ratio.
+3. A population plot that shows the total population of the simulation over time.
+4. An energy plot that shows the average energy of the animals in the simulation over time.
+
 Make sure to stop the simulation by pressing the stop simulation button in the top left of the window.
