@@ -57,12 +57,12 @@ class GridVisualizer:
         self.stop_button.color = normalize_rgb((242, 24, 90))
         self.stop_button.on_clicked(self.stop_simulation)
 
-        self.speed_up_button_ax = self.fig.add_axes([0.1, 0.025, 0.1, 0.04])  
+        self.speed_up_button_ax = self.fig.add_axes([0.08, 0.025, 0.1, 0.04])  
         self.speed_up_button = Button(self.speed_up_button_ax, 'Speed Up')
         self.speed_up_button.color = normalize_rgb((7, 232, 116))
         self.speed_up_button.on_clicked(self.speed_up)
 
-        self.slow_down_button_ax = self.fig.add_axes([0.2, 0.025, 0.1, 0.04]) 
+        self.slow_down_button_ax = self.fig.add_axes([0.18, 0.025, 0.1, 0.04]) 
         self.slow_down_button = Button(self.slow_down_button_ax, 'Slow Down')
         self.slow_down_button.color = normalize_rgb((255, 80, 80))
         self.slow_down_button.on_clicked(self.slow_down)
