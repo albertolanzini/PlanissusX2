@@ -37,4 +37,6 @@ The plots shown are:
 3. A population plot that shows the total population of the simulation over time.
 4. An energy plot that shows the average energy of the animals in the simulation over time.
 
+Start the simulation by running the main.py file from the terminal.
+
 Make sure to stop the simulation by pressing the stop simulation button in the top left of the window.
