@@ -338,7 +338,7 @@ class GridVisualizer:
                     for animal in cell.inhabitants:
                         if isinstance(animal, Erbast) and not animal.dead:
                             erbast_count += 1
-                            print(f"Erbast {erbast_count}, ID: {animal.id}, age: {animal.age}, lifetime: {animal.lifetime}, herd: {animal.herd.id}")
+                            print(f"Erbast {erbast_count}, ID: {animal.id}, age: {animal.age}, lifetime: {animal.lifetime}, herd: {animal.herd.id}, energy: {animal.energy}")
                         elif isinstance(animal, Carviz) and not animal.dead:
                             carviz_count += 1
-                            print(f"Carviz {carviz_count}, age: {animal.age}, lifetime: {animal.lifetime}, pride: {animal.pride.id}, energy: {animal.energy}")
+                            print(f"Carviz {carviz_count},ID: {animal.id}, age: {animal.age}, lifetime: {animal.lifetime}, pride: {animal.pride.id}, energy: {animal.energy}")
